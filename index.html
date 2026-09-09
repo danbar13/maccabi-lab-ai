@@ -261,6 +261,33 @@
       animation: subtlePulse 2s infinite ease-in-out;
     }
 
+    /* Onboarding Tour Animations & Steps */
+    @keyframes modalPopIn {
+      from { opacity: 0; transform: scale(0.96) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-pop-in {
+      animation: modalPopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .tour-step-pill.active {
+      background: linear-gradient(135deg, #003C71 0%, #0075C9 100%);
+      color: #ffffff;
+      border-color: #0075C9;
+      box-shadow: 0 3px 10px rgba(0, 117, 201, 0.25);
+    }
+    .tour-step-pill.completed {
+      background: #E6F3FB;
+      color: #00529B;
+      border-color: #7DD3FC;
+    }
+    @keyframes highlightRowGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 163, 224, 0); }
+      50% { box-shadow: 0 0 0 4px rgba(0, 163, 224, 0.35); }
+    }
+    .tour-glow-effect {
+      animation: highlightRowGlow 2s infinite ease-in-out;
+    }
+
     /* Print styles */
     @media print {
       body * {
@@ -347,8 +374,14 @@
         <i data-lucide="chevron-down" id="miniPatientChevron" class="w-3.5 h-3.5 text-slate-400"></i>
       </div>
 
-      <!-- Left Controls: Toggle Switcher, Toggle View, and Always-Visible Alfon AI on Far Left -->
+      <!-- Left Controls: Tour, Toggle Switcher, Toggle View, and Always-Visible Alfon AI on Far Left -->
       <div class="flex items-center gap-2">
+        <!-- Tour Walkthrough Button -->
+        <button onclick="openOnboardingTour(0)" id="onboardingTourBtn" class="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border border-sky-300 bg-sky-50/90 hover:bg-sky-100 text-maccabi-blue transition shadow-2xs cursor-pointer flex-shrink-0" title="הפעל סיור מודרך והסבר על המערכת">
+          <i data-lucide="help-circle" class="w-4 h-4 text-sky-600"></i>
+          <span class="text-[11px] font-bold">סיור מודרך</span>
+        </button>
+
         <!-- Toggle Button for Patient Switcher Row -->
         <button onclick="togglePatientSwitcherRow()" id="togglePatientSwitcherBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50/90 hover:bg-sky-100 text-maccabi-blue text-xs font-bold transition shadow-2xs cursor-pointer" title="כווץ / הרחב שורת בחירת מטופלים">
           <i data-lucide="users" class="w-3.5 h-3.5 text-maccabi-primary"></i>
@@ -1026,6 +1059,379 @@
           <span>הבנתי, מכניסה לעמדה עכשיו</span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL: INTERACTIVE ONBOARDING TOUR & ANIMATION (סיור הדרכה מונפש בעת כניסה לאתר) -->
+  <div id="onboardingTourModal" class="fixed inset-0 bg-slate-900/65 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full flex flex-col max-h-[92vh] overflow-hidden border border-sky-300/80 modal-pop-in relative">
+      
+      <!-- Tour Header -->
+      <div class="p-4 sm:p-5 bg-gradient-to-r from-maccabi-navy via-maccabi-blue to-maccabi-primary text-white flex items-center justify-between shadow-xs">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center text-white text-xl shadow-inner">
+            🎓
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-black text-base sm:text-lg">מדריך תפעול: מערכת מעבדה AI</h3>
+              <span class="text-[10px] bg-white/20 text-white font-extrabold px-2 py-0.5 rounded-full border border-white/30" id="tourStepBadge">שלב 1 מתוך 5</span>
+            </div>
+            <p class="text-xs text-sky-100 mt-0.5">סיור היכרות מהיר עם יכולות הסייען הקדם-אנליטי של מכבי שירותי בריאות</p>
+          </div>
+        </div>
+        <button onclick="closeOnboardingTour()" class="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition cursor-pointer" title="סגור סיור">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Tour Progress Bar -->
+      <div class="w-full bg-slate-100 h-1.5 overflow-hidden">
+        <div id="tourProgressBar" class="h-full bg-gradient-to-r from-sky-400 to-maccabi-primary transition-all duration-300" style="width: 20%;"></div>
+      </div>
+
+      <!-- Step Navigation Pills -->
+      <div class="bg-slate-50/90 border-b border-slate-200 px-4 py-2 flex items-center justify-between gap-1 overflow-x-auto custom-scrollbar text-xs">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <button onclick="goToTourStep(0)" class="tour-step-pill active px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-0">
+            <span class="w-4 h-4 rounded-full bg-white/30 text-[10px] flex items-center justify-center font-black">1</span>
+            <span>סרגל שליטה ומטופלים</span>
+          </button>
+          <button onclick="goToTourStep(1)" class="tour-step-pill px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-1">
+            <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-black">2</span>
+            <span>3 שכבות תמיכה</span>
+          </button>
+          <button onclick="goToTourStep(2)" class="tour-step-pill px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-2">
+            <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-black">3</span>
+            <span>אימות וטיימר GCT</span>
+          </button>
+          <button onclick="goToTourStep(3)" class="tour-step-pill px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-3">
+            <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-black">4</span>
+            <span>סדר מבחנות ומעמד</span>
+          </button>
+          <button onclick="goToTourStep(4)" class="tour-step-pill px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-4">
+            <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-black">5</span>
+            <span>אלפון AI</span>
+          </button>
+        </div>
+
+        <!-- Auto Play Toggle in Top Pill Bar -->
+        <button onclick="toggleTourAutoPlay()" id="tourAutoPlayBtn" class="flex items-center gap-1 px-2.5 py-1 rounded-xl border border-sky-300 bg-white text-maccabi-blue text-[11px] font-bold hover:bg-sky-50 transition shadow-2xs cursor-pointer flex-shrink-0" title="הפעל או עצור מעבר אוטומטי בין שלבים">
+          <i data-lucide="play" id="tourAutoPlayIcon" class="w-3.5 h-3.5 text-maccabi-primary"></i>
+          <span id="tourAutoPlayText">ניגון אוטומטי</span>
+        </button>
+      </div>
+
+      <!-- Slide Content Container (Scrollable) -->
+      <div class="flex-1 overflow-y-auto p-5 sm:p-6 custom-scrollbar space-y-4" id="tourSlideContent">
+
+        <!-- SLIDE 0: סרגל הבקרה, מקרי מבחן וחיצי כיווץ -->
+        <div id="tourSlide-0" class="tour-slide space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div>
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-maccabi-primary">שלב 1 • ניווט ושליטה מרחבית</span>
+              <h2 class="text-lg font-black text-maccabi-navy">סרגל שליטה, 5 מקרי מבחן וחיצי כיווץ לחיסכון במקום</h2>
+            </div>
+            <span class="text-2xl">🧭</span>
+          </div>
+
+          <!-- Interactive Visual Demo Card -->
+          <div class="bg-gradient-to-br from-slate-50 to-sky-50/70 p-4 rounded-2xl border border-sky-200/80 space-y-3 shadow-2xs">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+              <span class="flex items-center gap-1.5 text-maccabi-navy font-black">
+                <i data-lucide="users" class="w-4 h-4 text-maccabi-primary"></i>
+                5 מקרי בוחן קליניים אמיתיים במעבדה:
+              </span>
+              <span class="text-[11px] text-slate-500">לחצו על שמות המטופלים במערכת להחלפה מהירה</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+              <div class="p-2 rounded-xl bg-white border border-sky-300 shadow-2xs font-extrabold text-maccabi-blue flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-full bg-maccabi-navy text-white flex items-center justify-center text-[10px]">1</span>
+                <span>דני לוי (עישון)</span>
+              </div>
+              <div class="p-2 rounded-xl bg-white border border-slate-200 font-bold text-slate-700 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px]">2</span>
+                <span>יפה כהן (סוכרת)</span>
+              </div>
+              <div class="p-2 rounded-xl bg-white border border-slate-200 font-bold text-slate-700 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px]">3</span>
+                <span>נועה ג. (הריון)</span>
+              </div>
+              <div class="p-2 rounded-xl bg-white border border-slate-200 font-bold text-slate-700 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px]">4</span>
+                <span>אהרון מ. (קומדין)</span>
+              </div>
+              <div class="p-2 rounded-xl bg-white border border-slate-200 font-bold text-slate-700 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px]">5</span>
+                <span>מיה ל. (ילדה)</span>
+              </div>
+            </div>
+
+            <!-- Visual Highlight: The 3 Collapsible Chevrons -->
+            <div class="mt-3 p-3 bg-white rounded-xl border border-sky-200 space-y-2">
+              <div class="flex items-center gap-2 text-xs font-black text-maccabi-navy">
+                <i data-lucide="chevrons-up-down" class="w-4 h-4 text-maccabi-cyan"></i>
+                <span>חיצי כיווץ חכמים לפינוי שטח מסך מקסימלי:</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-slate-700">
+                <div class="p-2 rounded-lg bg-sky-50/70 border border-sky-200 flex items-center gap-2">
+                  <span class="text-maccabi-primary font-black">▲ 1.</span>
+                  <div><strong>שורת מטופל:</strong> לחיצה על החץ מקפלת את שורת 5 המטופלים.</div>
+                </div>
+                <div class="p-2 rounded-lg bg-sky-50/70 border border-sky-200 flex items-center gap-2">
+                  <span class="text-maccabi-primary font-black">▲ 2.</span>
+                  <div><strong>שורת תצוגה:</strong> מקפלת את בחירת החלונות ובקרת הסאונד.</div>
+                </div>
+                <div class="p-2 rounded-lg bg-sky-50/70 border border-sky-200 flex items-center gap-2">
+                  <span class="text-maccabi-primary font-black">▲ 3.</span>
+                  <div><strong>שורת לקוח:</strong> מכווצת את כרטיס המטופל לפס דק (28px).</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Highlight: Alfon AI Permanent Button -->
+          <div class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 flex items-start gap-3 text-xs text-amber-950">
+            <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 font-bold">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div class="font-extrabold text-sm">כפתור "שאל את אלפון AI" זמין תמיד בראש המסך משמאל!</div>
+              <p class="text-slate-700 mt-0.5">
+                גם כאשר כל השורות מקופלות לפינוי מקום, כפתור האלפון נשאר גלוי תמיד בסרגל העליון וזמין בלחיצה אחת לקבלת מענה על נהלי שאיבה ומעבדה.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 1: 3 שכבות התמיכה הקדם-אנליטית -->
+        <div id="tourSlide-1" class="tour-slide space-y-4 hidden">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div>
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-maccabi-primary">שלב 2 • ליבת המערכת</span>
+              <h2 class="text-lg font-black text-maccabi-navy">3 שכבות התמיכה הקדם-אנליטית לעובדת המעבדה</h2>
+            </div>
+            <span class="text-2xl">🛡️</span>
+          </div>
+
+          <p class="text-xs text-slate-600 leading-relaxed">
+            המערכת פועלת במודל תלת-שכבתי ייחודי למניעת שגיאות קדם-אנליטיות (Pre-Analytical Errors) עוד לפני החדרת המחט לוריד:
+          </p>
+
+          <!-- 3 Pillars Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <!-- Pillar 1 -->
+            <div class="p-4 rounded-2xl bg-sky-50 border border-sky-200 flex flex-col justify-between space-y-2">
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-full bg-maccabi-primary text-white flex items-center justify-center font-black text-xs">1</span>
+                  <span class="font-extrabold text-sm text-maccabi-navy">שכבת התמצאות</span>
+                </div>
+                <div class="text-[11px] text-sky-800 font-bold">סנכרון מלא עם בוסה נובה</div>
+                <p class="text-slate-700 text-xs leading-relaxed">
+                  קריאה אוטומטית של כל ההפניות הפתוחות במערכת הבוסה נובה, בדיקות שגרתיות והתרעות על בדיקות מונעות מומלצות לפי גיל (רמב"ם/מכבי).
+                </p>
+              </div>
+              <div class="bg-white/80 p-2 rounded-xl text-[11px] text-maccabi-blue font-bold border border-sky-100">
+                ✓ מניעת בדיקות שנשכחו
+              </div>
+            </div>
+
+            <!-- Pillar 2 -->
+            <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col justify-between space-y-2">
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-full bg-amber-600 text-white flex items-center justify-center font-black text-xs">2</span>
+                  <span class="font-extrabold text-sm text-amber-950">שכבת תשומת לב</span>
+                </div>
+                <div class="text-[11px] text-amber-800 font-bold">מנוע חוקים קליני ואזהרות</div>
+                <p class="text-slate-700 text-xs leading-relaxed">
+                  זיהוי מיידי של אתגרים: צום לא מספק, עישון הבוקר, נטילת תרופות סותרות, שעות לקיחה קריטיות ותנאי קירור מיוחדים.
+                </p>
+              </div>
+              <div class="bg-white/80 p-2 rounded-xl text-[11px] text-amber-900 font-bold border border-amber-100">
+                ⚠ מניעת תוצאות שגויות (False Pos/Neg)
+              </div>
+            </div>
+
+            <!-- Pillar 3 -->
+            <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col justify-between space-y-2">
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-xs">3</span>
+                  <span class="font-extrabold text-sm text-emerald-950">שכבת פעולה</span>
+                </div>
+                <div class="text-[11px] text-emerald-800 font-bold">הנחיות ביצוע מדויקות</div>
+                <p class="text-slate-700 text-xs leading-relaxed">
+                  חלוקה אוטומטית: מה לקחת היום, מה לדחות, פיצול הפניות, סדר שאיבת מבחנות CLSI והנחיות ברורות שניתן להדפיס למטופל.
+                </p>
+              </div>
+              <div class="bg-white/80 p-2 rounded-xl text-[11px] text-emerald-900 font-bold border border-emerald-100">
+                🎯 חסכון בדקירות חוזרות
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 2: אימות תנאי מטופל, שאלות בירור וטיימר העמסת סוכר -->
+        <div id="tourSlide-2" class="tour-slide space-y-4 hidden">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div>
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-maccabi-primary">שלב 3 • דיוק קליני</span>
+              <h2 class="text-lg font-black text-maccabi-navy">שאלות בירור וטיימר 60 דק' להעמסת סוכר (GCT)</h2>
+            </div>
+            <span class="text-2xl">⏱️</span>
+          </div>
+
+          <!-- Feature 1: Dynamic Clarification Questions -->
+          <div class="p-4 rounded-2xl bg-sky-50/70 border border-sky-200 space-y-2.5 text-xs">
+            <div class="flex items-center gap-2 font-black text-maccabi-navy">
+              <i data-lucide="help-circle" class="w-4 h-4 text-maccabi-primary"></i>
+              <span>תשאול קדם-אנליטי אינטראקטיבי:</span>
+            </div>
+            <p class="text-slate-700 leading-relaxed">
+              בכל מטופל מוצגות שאלות אימות קריטיות (לדוגמה: שעות צום, נטילת תרופות בבוקר, עישון). שינוי התשובה מעדכן בזמן אמת את תוכנית הבדיקות!
+            </p>
+            <div class="bg-white p-3 rounded-xl border border-sky-200 flex items-center justify-between gap-3">
+              <div class="text-[11px] text-slate-800">
+                <strong>דוגמה מעשית:</strong> סימון "כן, עישנתי הבוקר" אצל דני לוי &larr; מבטל אוטומטית את תבחין הנשיפה להליקובקטר כדי למנוע הטעיה קלינית!
+              </div>
+              <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200 font-black text-[10px] flex-shrink-0">
+                התאמה אוטומטית ✓
+              </span>
+            </div>
+          </div>
+
+          <!-- Feature 2: Dedicated 60-Minute GCT Timer -->
+          <div class="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-2.5 text-xs">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 font-black text-rose-950">
+                <i data-lucide="timer" class="w-4 h-4 text-rose-600"></i>
+                <span>טיימר 60 דקות מובנה להעמסת סוכר בהריון (נועה גולדשטיין):</span>
+              </div>
+              <span class="text-[10px] bg-rose-200 text-rose-900 font-extrabold px-2 py-0.5 rounded-md">צליל התרעה + פופ-אפ</span>
+            </div>
+            <p class="text-slate-700 leading-relaxed">
+              שאיבת גלוקוז ב-GCT 50g חייבת להתבצע בדיוק ב-60 דקות. המערכת כוללת טיימר חי: אפשרות להפעיל, להשהות, או להריץ לדקה 59:58 לבדיקה.
+              בתום השעה מושמע צליל התרעה קולית וקופצת התרעה ממוקדת לקרוא למטופלת מיד לעמדה.
+            </p>
+          </div>
+        </div>
+
+        <!-- SLIDE 3: תוכנית לקיחה, סדר מבחנות ומעמד שולחני אינטראקטיבי -->
+        <div id="tourSlide-3" class="tour-slide space-y-4 hidden">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div>
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-maccabi-primary">שלב 4 • בטיחות בעמדה</span>
+              <h2 class="text-lg font-black text-maccabi-navy">סדר מבחנות CLSI ומעמד שולחני אינטראקטיבי</h2>
+            </div>
+            <span class="text-2xl">🧪</span>
+          </div>
+
+          <!-- CLSI Protocol Explanation -->
+          <div class="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200 space-y-2 text-xs">
+            <div class="flex items-center gap-2 font-black text-indigo-950">
+              <i data-lucide="layers" class="w-4 h-4 text-indigo-600"></i>
+              <span>סדר שאיבה לפי תקן בינלאומי CLSI H3-A6:</span>
+            </div>
+            <p class="text-slate-700 leading-relaxed">
+              סדר שאיבת המבחנות נקבע לפי נוהל מעבדות מכבי למניעת זיהום צולב של חומרים נוגדי קרישה (תרבית &larr; קרישה כחולה &larr; סרום צהובה &larr; ספירה סגולה &larr; פלואוריד אפורה).
+            </p>
+          </div>
+
+          <!-- Virtual Tube Rack Feature -->
+          <div class="p-4 rounded-2xl bg-sky-50/70 border border-sky-200 space-y-3 text-xs">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 font-black text-maccabi-navy">
+                <i data-lucide="check-square" class="w-4 h-4 text-maccabi-primary"></i>
+                <span>מעמד מבחנות שולחני תלת-ממדי (Desktop Rack):</span>
+              </div>
+              <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-md border border-emerald-200">אינטראקטיבי</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700">
+              <div class="p-2.5 bg-white rounded-xl border border-sky-100 space-y-1">
+                <div class="font-bold text-maccabi-blue flex items-center gap-1">
+                  <span>✓ סימון שאיבה בלחיצה:</span>
+                </div>
+                <p class="text-[11px]">לחיצה על כל מבחנה במעמד או בכרטיסיה מסמנת V ירוק ומעדכנת מונה שאיבה בזמן אמת.</p>
+              </div>
+              <div class="p-2.5 bg-white rounded-xl border border-sky-100 space-y-1">
+                <div class="font-bold text-maccabi-blue flex items-center gap-1">
+                  <span>🖨️ הדפסה והנחיות המשך:</span>
+                </div>
+                <p class="text-[11px]">כפתור "הדפס סיכום ביקור" מפיק דף מסודר למטופל עם פירוט הבדיקות שנלקחו והוראות להמשך.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 4: אלפון AI קדם-אנליטי אינטראקטיבי -->
+        <div id="tourSlide-4" class="tour-slide space-y-4 hidden">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div>
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-maccabi-primary">שלב 5 • מומחה ידע מובנה</span>
+              <h2 class="text-lg font-black text-maccabi-navy">אלפון AI: מענה מיידי לכל שאלה על נהלי מעבדה</h2>
+            </div>
+            <span class="text-2xl">🤖</span>
+          </div>
+
+          <p class="text-xs text-slate-600 leading-relaxed">
+            האלפון הקדם-אנליטי של מכבי משלב מנוע בינה מלאכותית המתמצא בכל נהלי העבודה, זמני יציבות של דגימות, תנאי קירור וסרכוז:
+          </p>
+
+          <div class="p-4 rounded-2xl bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-200 space-y-3 text-xs">
+            <div class="flex items-center gap-2 font-black text-maccabi-navy">
+              <i data-lucide="messages-square" class="w-4 h-4 text-maccabi-primary"></i>
+              <span>כיצד להשתמש באלפון AI:</span>
+            </div>
+            <div class="space-y-2 text-slate-700">
+              <div class="flex items-start gap-2 bg-white/90 p-2.5 rounded-xl border border-sky-100">
+                <span class="font-black text-maccabi-blue">1.</span>
+                <div>לחצו על כפתור <strong>"שאל את אלפון AI"</strong> הנמצא בראש המסך משמאל בכל עת.</div>
+              </div>
+              <div class="flex items-start gap-2 bg-white/90 p-2.5 rounded-xl border border-sky-100">
+                <span class="font-black text-maccabi-blue">2.</span>
+                <div>בחרו באחת מ<strong>השאלות המהירות</strong> המותאמות במיוחד למטופל הפעיל.</div>
+              </div>
+              <div class="flex items-start gap-2 bg-white/90 p-2.5 rounded-xl border border-sky-100">
+                <span class="font-black text-maccabi-blue">3.</span>
+                <div>או הקלידו כל שאלה חופשית (למשל: "כמה זמן מבחנת קרישה יציבה?", "האם לקרר שתן לתרבית?").</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-[11px] text-emerald-900 font-bold flex items-center gap-2">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
+            <span>מענה מוסמך ומיידי המסייע לשמור על איכות הדגימות ולמנוע פסילות במעבדה המרכזית!</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tour Footer & Controls -->
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <!-- Right / Start: Checkbox "Don't show again" -->
+        <label class="flex items-center gap-2 cursor-pointer select-none text-slate-700 hover:text-slate-900">
+          <input type="checkbox" id="dontShowTourAgainCheckbox" onchange="handleDontShowTourAgain(this.checked)" class="w-4 h-4 rounded text-maccabi-primary focus:ring-sky-400 border-slate-300">
+          <span class="text-[11px] font-semibold">אל תציג הדרכה זו שוב בכניסה לאתר</span>
+        </label>
+
+        <!-- Navigation Buttons: Prev, Next, Skip/Finish -->
+        <div class="flex items-center gap-2">
+          <button onclick="closeOnboardingTour()" class="px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 font-semibold transition cursor-pointer" title="סגור סיור">
+            דלג על הסיור
+          </button>
+          <button onclick="prevTourStep()" id="tourPrevBtn" class="px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 font-bold transition shadow-2xs cursor-pointer flex items-center gap-1 opacity-50 cursor-not-allowed" disabled>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            <span>הקודם</span>
+          </button>
+          <button onclick="nextTourStep()" id="tourNextBtn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-maccabi-navy to-maccabi-primary hover:from-maccabi-dark hover:to-maccabi-navy text-white font-black transition shadow-xs cursor-pointer flex items-center gap-1.5">
+            <span id="tourNextBtnText">הבא</span>
+            <i data-lucide="arrow-left" id="tourNextBtnIcon" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -1923,6 +2329,208 @@
     }
 
     // -------------------------------------------------------------
+    // ONBOARDING TOUR & WALKTHROUGH LOGIC
+    // -------------------------------------------------------------
+    let currentTourStep = 0;
+    const TOTAL_TOUR_STEPS = 5;
+    let tourAutoPlayInterval = null;
+
+    function openOnboardingTour(stepIndex = 0) {
+      currentTourStep = Math.max(0, Math.min(stepIndex, TOTAL_TOUR_STEPS - 1));
+      const modal = document.getElementById('onboardingTourModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+      }
+
+      // Check the checkbox according to current saved preference
+      try {
+        const isHidden = localStorage.getItem('maccabi_hide_onboarding_tour') === 'true';
+        const checkbox = document.getElementById('dontShowTourAgainCheckbox');
+        if (checkbox) {
+          checkbox.checked = isHidden;
+        }
+      } catch (e) {}
+
+      updateTourStepUI();
+      playMedicalSound('pop');
+      lucide.createIcons();
+    }
+
+    function closeOnboardingTour() {
+      stopTourAutoPlay();
+      const modal = document.getElementById('onboardingTourModal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function nextTourStep() {
+      if (currentTourStep < TOTAL_TOUR_STEPS - 1) {
+        currentTourStep++;
+        updateTourStepUI();
+        playMedicalSound('pop');
+      } else {
+        closeOnboardingTour();
+      }
+    }
+
+    function prevTourStep() {
+      if (currentTourStep > 0) {
+        currentTourStep--;
+        updateTourStepUI();
+        playMedicalSound('pop');
+      }
+    }
+
+    function goToTourStep(idx) {
+      if (idx >= 0 && idx < TOTAL_TOUR_STEPS) {
+        currentTourStep = idx;
+        updateTourStepUI();
+        playMedicalSound('pop');
+      }
+    }
+
+    function updateTourStepUI() {
+      // Update Progress Bar
+      const progressEl = document.getElementById('tourProgressBar');
+      if (progressEl) {
+        const pct = ((currentTourStep + 1) / TOTAL_TOUR_STEPS) * 100;
+        progressEl.style.width = `${pct}%`;
+      }
+
+      // Update Step Badge in Header
+      const badge = document.getElementById('tourStepBadge');
+      if (badge) {
+        badge.innerText = `שלב ${currentTourStep + 1} מתוך ${TOTAL_TOUR_STEPS}`;
+      }
+
+      // Update Slides visibility
+      for (let i = 0; i < TOTAL_TOUR_STEPS; i++) {
+        const slide = document.getElementById(`tourSlide-${i}`);
+        if (slide) {
+          if (i === currentTourStep) {
+            slide.classList.remove('hidden');
+            slide.classList.add('modal-pop-in');
+          } else {
+            slide.classList.add('hidden');
+            slide.classList.remove('modal-pop-in');
+          }
+        }
+
+        // Update Step Pills
+        const pill = document.getElementById(`tourPill-${i}`);
+        if (pill) {
+          pill.className = `tour-step-pill px-3 py-1 rounded-xl font-bold border transition cursor-pointer flex items-center gap-1.5 ${
+            i === currentTourStep 
+              ? 'active' 
+              : i < currentTourStep 
+                ? 'completed' 
+                : 'border-slate-200 text-slate-700 hover:bg-sky-50'
+          }`;
+          const numSpan = pill.querySelector('span:first-child');
+          if (numSpan) {
+            if (i === currentTourStep) {
+              numSpan.className = 'w-4 h-4 rounded-full bg-white/30 text-[10px] flex items-center justify-center font-black';
+              numSpan.innerText = i + 1;
+            } else if (i < currentTourStep) {
+              numSpan.className = 'w-4 h-4 rounded-full bg-sky-200 text-maccabi-blue text-[10px] flex items-center justify-center font-black';
+              numSpan.innerText = '✓';
+            } else {
+              numSpan.className = 'w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-black';
+              numSpan.innerText = i + 1;
+            }
+          }
+        }
+      }
+
+      // Update Navigation Buttons (Prev / Next)
+      const prevBtn = document.getElementById('tourPrevBtn');
+      if (prevBtn) {
+        if (currentTourStep === 0) {
+          prevBtn.disabled = true;
+          prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+          prevBtn.classList.remove('hover:bg-slate-50');
+        } else {
+          prevBtn.disabled = false;
+          prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+          prevBtn.classList.add('hover:bg-slate-50');
+        }
+      }
+
+      const nextBtnText = document.getElementById('tourNextBtnText');
+      const nextBtnIcon = document.getElementById('tourNextBtnIcon');
+      if (nextBtnText) {
+        if (currentTourStep === TOTAL_TOUR_STEPS - 1) {
+          nextBtnText.innerText = 'התחל לעבוד במעבדה 🚀';
+          if (nextBtnIcon) nextBtnIcon.setAttribute('data-lucide', 'check');
+        } else {
+          nextBtnText.innerText = 'הבא';
+          if (nextBtnIcon) nextBtnIcon.setAttribute('data-lucide', 'arrow-left');
+        }
+      }
+
+      // Scroll content to top
+      const contentEl = document.getElementById('tourSlideContent');
+      if (contentEl) contentEl.scrollTop = 0;
+
+      lucide.createIcons();
+    }
+
+    function toggleTourAutoPlay() {
+      if (tourAutoPlayInterval) {
+        stopTourAutoPlay();
+      } else {
+        startTourAutoPlay();
+      }
+    }
+
+    function startTourAutoPlay() {
+      stopTourAutoPlay();
+      const btn = document.getElementById('tourAutoPlayBtn');
+      const text = document.getElementById('tourAutoPlayText');
+      const icon = document.getElementById('tourAutoPlayIcon');
+      if (btn) {
+        btn.classList.add('bg-emerald-50', 'border-emerald-300', 'text-emerald-800');
+        btn.classList.remove('bg-white', 'text-maccabi-blue');
+      }
+      if (text) text.innerText = 'השהה ניגון ⏸';
+      if (icon) icon.setAttribute('data-lucide', 'pause');
+
+      tourAutoPlayInterval = setInterval(() => {
+        if (currentTourStep < TOTAL_TOUR_STEPS - 1) {
+          nextTourStep();
+        } else {
+          stopTourAutoPlay();
+        }
+      }, 5000);
+
+      lucide.createIcons();
+    }
+
+    function stopTourAutoPlay() {
+      if (tourAutoPlayInterval) {
+        clearInterval(tourAutoPlayInterval);
+        tourAutoPlayInterval = null;
+      }
+      const btn = document.getElementById('tourAutoPlayBtn');
+      const text = document.getElementById('tourAutoPlayText');
+      const icon = document.getElementById('tourAutoPlayIcon');
+      if (btn) {
+        btn.classList.remove('bg-emerald-50', 'border-emerald-300', 'text-emerald-800');
+        btn.classList.add('bg-white', 'text-maccabi-blue');
+      }
+      if (text) text.innerText = 'ניגון אוטומטי';
+      if (icon) icon.setAttribute('data-lucide', 'play');
+      lucide.createIcons();
+    }
+
+    function handleDontShowTourAgain(checked) {
+      try {
+        localStorage.setItem('maccabi_hide_onboarding_tour', checked ? 'true' : 'false');
+      } catch (e) {}
+    }
+
+    // -------------------------------------------------------------
     // INITIALIZATION
     // -------------------------------------------------------------
     window.addEventListener('DOMContentLoaded', () => {
@@ -1940,6 +2548,16 @@
         }
         if (localStorage.getItem('maccabi_patientStrip_collapsed') === 'true') {
           togglePatientStrip(true);
+        }
+      } catch (e) {}
+
+      // Check whether to show the Onboarding Tour
+      try {
+        const hideTour = localStorage.getItem('maccabi_hide_onboarding_tour');
+        if (hideTour !== 'true') {
+          setTimeout(() => {
+            openOnboardingTour(0);
+          }, 600);
         }
       } catch (e) {}
 
