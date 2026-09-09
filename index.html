@@ -1080,9 +1080,17 @@
             <p class="text-xs text-sky-100 mt-0.5">סיור היכרות מהיר עם יכולות הסייען הקדם-אנליטי של מכבי שירותי בריאות</p>
           </div>
         </div>
-        <button onclick="closeOnboardingTour()" class="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition cursor-pointer" title="סגור סיור">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <!-- Voice Narration Toggle Button (השתק / הפעל הסבר קולי) -->
+          <button onclick="toggleTourVoice()" id="tourVoiceToggleBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/30 transition shadow-2xs cursor-pointer" title="הפעל או השתק הסבר קולי לסיור">
+            <i data-lucide="volume-2" id="tourVoiceIcon" class="w-4 h-4 text-sky-200"></i>
+            <span id="tourVoiceText" class="hidden sm:inline">קריינות פעילה</span>
+          </button>
+
+          <button onclick="closeOnboardingTour()" class="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition cursor-pointer" title="סגור סיור">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Tour Progress Bar -->
@@ -1406,6 +1414,27 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- Tour Voice Narration Subtitles Banner (כתוביות הסבר קולי) -->
+      <div id="tourVoiceSubtitleBar" class="mx-4 sm:mx-6 mb-2 p-2.5 rounded-2xl bg-gradient-to-r from-sky-50 via-white to-blue-50 border border-sky-200 text-xs text-slate-800 flex items-start gap-2.5 shadow-xs transition-all">
+        <div class="w-6 h-6 rounded-lg bg-maccabi-primary text-white flex items-center justify-center flex-shrink-0 text-xs font-bold shadow-2xs mt-0.5">
+          <i data-lucide="volume-2" id="tourSubVoiceIcon" class="w-3.5 h-3.5 text-white"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2 mb-0.5">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-maccabi-blue flex items-center gap-1">
+              <span>הסבר קולי</span>
+              <span id="tourVoiceLiveDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot inline-block"></span>
+            </span>
+            <button onclick="toggleTourVoice()" class="text-[10px] font-bold text-sky-600 hover:text-sky-800 cursor-pointer flex items-center gap-1">
+              <span id="tourVoiceSubToggleLabel">השתק קול</span>
+            </button>
+          </div>
+          <p id="tourVoiceSubtitleText" class="text-xs font-medium text-slate-700 leading-relaxed">
+            ברוכים הבאים למעבדה AI...
+          </p>
+        </div>
       </div>
 
       <!-- Tour Footer & Controls -->
@@ -2329,11 +2358,21 @@
     }
 
     // -------------------------------------------------------------
-    // ONBOARDING TOUR & WALKTHROUGH LOGIC
+    // ONBOARDING TOUR & WALKTHROUGH LOGIC (WITH HEBREW VOICE NARRATION)
     // -------------------------------------------------------------
     let currentTourStep = 0;
     const TOTAL_TOUR_STEPS = 5;
     let tourAutoPlayInterval = null;
+    let tourVoiceMuted = false;
+    let currentTourUtterance = null;
+
+    const TOUR_NARRATIONS = [
+      "ברוכים הבאים למעבדה AI. בסרגל העליון תוכלו לעבור בין חמישה מקרי מבחן קליניים. שימו לב לחיצי הקיפול הקטנים – לחיצה עליהם תסגור את השורות ותפנה לכם מקסימום שטח מסך בעמדה. כפתור שאל את אלפון AI נשאר זמין תמיד משמאל.",
+      "המערכת פועלת בשלוש שכבות תמיכה: התמצאות – קריאת כל ההפניות מבוסה נובה ובדיקות מונעות; תשומת לב – זיהוי התנגשויות קליניות כמו צום ועישון; ופעולה – הנחיות עבודה ברורות מה לבצע היום ומה לדחות.",
+      "בכל מטופל, שאלות הבירור מתאימות את תוכנית הבדיקות בזמן אמת. לדוגמה, עישון הבוקר יבטל מיידית את תבחין הנשיפה. בנוסף, לרשותכם טיימר מובנה של שישים דקות להעמסת סוכר עם התרעה קולית בתום השעה.",
+      "סדר שאיבת המבחנות מותאם לתקן הבינלאומי למניעת זיהום צולב. במעמד המבחנות השולחני תוכלו ללחוץ על כל מבחנה לסימון ביצוע, ולבסוף להדפיס סיכום הנחיות מסודר למטופל.",
+      "אלפון AI מבוסס על כל נהלי מעבדת מכבי. בלחיצה אחת תוכלו לבחור שאלות מהירות או להקליד כל שאלה, ולקבל מענה מיידי על זמני יציבות, סרכוז וטמפרטורת שינוע."
+    ];
 
     function openOnboardingTour(stepIndex = 0) {
       currentTourStep = Math.max(0, Math.min(stepIndex, TOTAL_TOUR_STEPS - 1));
@@ -2342,7 +2381,7 @@
         modal.classList.remove('hidden');
       }
 
-      // Check the checkbox according to current saved preference
+      // Restore saved preference for "don't show again"
       try {
         const isHidden = localStorage.getItem('maccabi_hide_onboarding_tour') === 'true';
         const checkbox = document.getElementById('dontShowTourAgainCheckbox');
@@ -2351,6 +2390,14 @@
         }
       } catch (e) {}
 
+      // Restore saved preference for voice mute
+      try {
+        tourVoiceMuted = localStorage.getItem('maccabi_tour_voice_muted') === 'true';
+      } catch (e) {
+        tourVoiceMuted = false;
+      }
+      updateTourVoiceUI();
+
       updateTourStepUI();
       playMedicalSound('pop');
       lucide.createIcons();
@@ -2358,6 +2405,7 @@
 
     function closeOnboardingTour() {
       stopTourAutoPlay();
+      stopTourNarration();
       const modal = document.getElementById('onboardingTourModal');
       if (modal) {
         modal.classList.add('hidden');
@@ -2388,6 +2436,109 @@
         updateTourStepUI();
         playMedicalSound('pop');
       }
+    }
+
+    function playTourNarration(stepIdx) {
+      stopTourNarration();
+
+      // Update subtitle bar text
+      const subtitleText = document.getElementById('tourVoiceSubtitleText');
+      if (subtitleText && TOUR_NARRATIONS[stepIdx]) {
+        subtitleText.innerText = TOUR_NARRATIONS[stepIdx];
+      }
+
+      const dot = document.getElementById('tourVoiceLiveDot');
+      if (dot) {
+        dot.style.display = tourVoiceMuted ? 'none' : 'inline-block';
+      }
+
+      if (tourVoiceMuted) return;
+
+      if ('speechSynthesis' in window) {
+        try {
+          const text = TOUR_NARRATIONS[stepIdx];
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = 'he-IL';
+          utter.rate = 0.95;
+          utter.pitch = 1.0;
+
+          // Attempt to select Hebrew voice if available
+          const voices = window.speechSynthesis.getVoices();
+          const heVoice = voices.find(v => v.lang && (v.lang.startsWith('he') || v.lang.startsWith('iw')));
+          if (heVoice) {
+            utter.voice = heVoice;
+          }
+
+          utter.onend = () => {
+            currentTourUtterance = null;
+          };
+          utter.onerror = () => {
+            currentTourUtterance = null;
+          };
+
+          currentTourUtterance = utter;
+          window.speechSynthesis.speak(utter);
+        } catch (e) {
+          console.warn('Speech synthesis error:', e);
+        }
+      }
+    }
+
+    function stopTourNarration() {
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+        } catch (e) {}
+      }
+      currentTourUtterance = null;
+      const dot = document.getElementById('tourVoiceLiveDot');
+      if (dot) dot.style.display = 'none';
+    }
+
+    function toggleTourVoice() {
+      tourVoiceMuted = !tourVoiceMuted;
+      try {
+        localStorage.setItem('maccabi_tour_voice_muted', tourVoiceMuted ? 'true' : 'false');
+      } catch (e) {}
+
+      updateTourVoiceUI();
+
+      if (tourVoiceMuted) {
+        stopTourNarration();
+      } else {
+        playTourNarration(currentTourStep);
+      }
+      lucide.createIcons();
+    }
+
+    function updateTourVoiceUI() {
+      const btn = document.getElementById('tourVoiceToggleBtn');
+      const text = document.getElementById('tourVoiceText');
+      const icon = document.getElementById('tourVoiceIcon');
+      const subLabel = document.getElementById('tourVoiceSubToggleLabel');
+      const subIcon = document.getElementById('tourSubVoiceIcon');
+      const dot = document.getElementById('tourVoiceLiveDot');
+
+      if (tourVoiceMuted) {
+        if (btn) {
+          btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-white text-xs font-bold border border-red-300/40 transition shadow-2xs cursor-pointer";
+        }
+        if (text) text.innerText = 'הפעל קריינות 🔇';
+        if (icon) icon.setAttribute('data-lucide', 'volume-x');
+        if (subLabel) subLabel.innerText = 'הפעל קול';
+        if (subIcon) subIcon.setAttribute('data-lucide', 'volume-x');
+        if (dot) dot.style.display = 'none';
+      } else {
+        if (btn) {
+          btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/30 transition shadow-2xs cursor-pointer";
+        }
+        if (text) text.innerText = 'השתק קריינות 🔊';
+        if (icon) icon.setAttribute('data-lucide', 'volume-2');
+        if (subLabel) subLabel.innerText = 'השתק קול';
+        if (subIcon) subIcon.setAttribute('data-lucide', 'volume-2');
+        if (dot) dot.style.display = 'inline-block';
+      }
+      lucide.createIcons();
     }
 
     function updateTourStepUI() {
@@ -2473,6 +2624,9 @@
       const contentEl = document.getElementById('tourSlideContent');
       if (contentEl) contentEl.scrollTop = 0;
 
+      // Play narration for this step
+      playTourNarration(currentTourStep);
+
       lucide.createIcons();
     }
 
@@ -2502,7 +2656,7 @@
         } else {
           stopTourAutoPlay();
         }
-      }, 5000);
+      }, 7000);
 
       lucide.createIcons();
     }
