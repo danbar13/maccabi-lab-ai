@@ -346,8 +346,15 @@
         </div>
       </div>
 
-      <!-- Left: Collapsible Toggle Button for View Controls Row -->
+      <!-- Left: Permanent Alfon AI Button & Collapsible Toggle Button -->
       <div class="flex items-center gap-2">
+        <!-- Always Visible: Alfon AI Button -->
+        <button onclick="openAlfonChatModal()" class="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-gradient-to-r from-maccabi-navy to-maccabi-blue hover:from-maccabi-dark hover:to-maccabi-navy text-white shadow-xs hover:shadow-md transition cursor-pointer" title="שאל את אלפון AI - סייען קדם אנליטי חכם">
+          <i data-lucide="sparkles" class="w-4 h-4 text-sky-300"></i>
+          <span>שאל את אלפון AI</span>
+        </button>
+
+        <!-- Collapsible Toggle Button for View Controls Row -->
         <button onclick="toggleViewControlsRow()" id="toggleViewControlsBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-300 bg-sky-50/90 hover:bg-sky-100 text-maccabi-blue text-xs font-bold transition shadow-2xs cursor-pointer" title="כווץ / הרחב שורת בחירת תצוגה ובקרות">
           <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-maccabi-primary"></i>
           <span class="text-[11px] font-bold text-slate-700" id="viewControlsToggleLabel">תצוגה ובקרות</span>
@@ -401,10 +408,6 @@
           <button onclick="toggleActionDrawer()" id="actionDrawerToggleBtn" class="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition shadow-2xs" title="כווץ/הרחב פאנל סדר מבחנות">
             <i data-lucide="clipboard-list" class="w-4 h-4 text-slate-500"></i>
             <span id="actionDrawerToggleText">פאנל פעולה</span>
-          </button>
-          <button onclick="openAlfonChatModal()" class="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-gradient-to-r from-maccabi-navy to-maccabi-blue hover:from-maccabi-dark hover:to-maccabi-navy text-white shadow-xs hover:shadow-md transition">
-            <i data-lucide="sparkles" class="w-4 h-4 text-sky-300"></i>
-            <span>שאל את אלפון AI</span>
           </button>
         </div>
 
