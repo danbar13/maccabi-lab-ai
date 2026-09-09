@@ -374,8 +374,14 @@
         <i data-lucide="chevron-down" id="miniPatientChevron" class="w-3.5 h-3.5 text-slate-400"></i>
       </div>
 
-      <!-- Left Controls: Tour, Toggle Switcher, Toggle View, and Always-Visible Alfon AI on Far Left -->
+      <!-- Left Controls: Back Office, Tour, Toggle Switcher, Toggle View, and Always-Visible Alfon AI on Far Left -->
       <div class="flex items-center gap-2">
+        <!-- Back Office / Clinical Rules Admin Portal Button -->
+        <button onclick="openBackOfficeModal()" id="backOfficeBtn" class="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50/90 hover:bg-indigo-100 text-indigo-900 transition shadow-2xs cursor-pointer flex-shrink-0" title="פורטל ניהול נהלים וחוקים קליניים (בק-אופיס מעבדות מכבי)">
+          <i data-lucide="shield-check" class="w-4 h-4 text-indigo-600"></i>
+          <span class="text-[11px] font-bold hidden sm:inline">בק-אופיס נהלים</span>
+        </button>
+
         <!-- Tour Walkthrough Button -->
         <button onclick="openOnboardingTour(0)" id="onboardingTourBtn" class="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border border-sky-300 bg-sky-50/90 hover:bg-sky-100 text-maccabi-blue transition shadow-2xs cursor-pointer flex-shrink-0" title="הפעל סיור מודרך והסבר על המערכת">
           <i data-lucide="help-circle" class="w-4 h-4 text-sky-600"></i>
@@ -1459,6 +1465,326 @@
             <i data-lucide="arrow-left" id="tourNextBtnIcon" class="w-3.5 h-3.5"></i>
           </button>
         </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: CLINICAL BACK OFFICE / ADMIN RULES PORTAL (פורטל ניהול נהלים וחוקים קליניים - מעבדות מכבי) -->
+  <div id="backOfficeModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 hidden flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full flex flex-col max-h-[94vh] overflow-hidden border border-indigo-200 modal-pop-in relative">
+      
+      <!-- Back Office Header -->
+      <div class="p-4 sm:p-5 bg-gradient-to-r from-slate-900 via-indigo-950 to-maccabi-navy text-white flex flex-wrap items-center justify-between gap-3 shadow-md">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-white text-2xl shadow-inner">
+            ⚙️
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h2 class="font-black text-base sm:text-lg">פורטל ניהול נהלים וחוקים קליניים (בק-אופיס)</h2>
+              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
+                <span>מחובר ישירות ל-LIS מכבי</span>
+              </span>
+            </div>
+            <p class="text-xs text-indigo-200 mt-0.5">שליטה ארצית בנהלי לקיחה, מנוע חוקי תשאול, קטלוג בדיקות, טיימרים והפצת עדכונים למרפאות</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+          <span class="hidden md:flex items-center gap-1.5 text-xs bg-white/10 px-3 py-1.5 rounded-xl border border-white/15 text-indigo-100 font-semibold">
+            <i data-lucide="user-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>הרשאה: מנהלת איכות ארצית</span>
+          </span>
+          <button onclick="closeBackOfficeModal()" class="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition cursor-pointer" title="סגור בק-אופיס">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Back Office Tabs Navigation Bar -->
+      <div class="bg-slate-50 border-b border-slate-200 px-4 sm:px-6 py-2 flex items-center justify-between gap-2 overflow-x-auto custom-scrollbar text-xs">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <button onclick="switchBackOfficeTab('rules')" id="boTabBtn-rules" class="px-3.5 py-1.5 rounded-xl font-bold bg-indigo-900 text-white shadow-2xs transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="filter" class="w-3.5 h-3.5"></i>
+            <span>1. מנוע חוקי תשאול ואימות</span>
+          </button>
+          <button onclick="switchBackOfficeTab('tests')" id="boTabBtn-tests" class="px-3.5 py-1.5 rounded-xl font-bold text-slate-700 bg-white hover:bg-indigo-50 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+            <span>2. קטלוג בדיקות והנחיות שינוע</span>
+          </button>
+          <button onclick="switchBackOfficeTab('timers')" id="boTabBtn-timers" class="px-3.5 py-1.5 rounded-xl font-bold text-slate-700 bg-white hover:bg-indigo-50 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="timer" class="w-3.5 h-3.5"></i>
+            <span>3. טיימרים והתרעות בטיחות</span>
+          </button>
+          <button onclick="switchBackOfficeTab('sync')" id="boTabBtn-sync" class="px-3.5 py-1.5 rounded-xl font-bold text-slate-700 bg-white hover:bg-indigo-50 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>4. סנכרון ארגוני ולוג עדכונים</span>
+          </button>
+        </div>
+
+        <div class="hidden lg:flex items-center gap-1.5 text-[11px] text-slate-500 font-semibold">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-500"></i>
+          <span>שינויים נכנסים לתוקף מיידי בעמדות הלקיחה</span>
+        </div>
+      </div>
+
+      <!-- Tab Panels Container (Scrollable) -->
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar text-xs space-y-4" id="boPanelsContainer">
+
+        <!-- TAB 1: מנוע חוקי תשאול ואימות (Rules Engine) -->
+        <div id="boPanel-rules" class="space-y-4">
+          <div class="p-3.5 rounded-2xl bg-indigo-50/70 border border-indigo-200 flex items-start justify-between gap-3">
+            <div>
+              <div class="font-extrabold text-sm text-indigo-950 flex items-center gap-1.5">
+                <i data-lucide="sliders" class="w-4 h-4 text-indigo-600"></i>
+                <span>ניהול חוקי תשאול דינמיים בעמדת הלקיחה:</span>
+              </div>
+              <p class="text-slate-700 text-xs mt-0.5 leading-relaxed">
+                מנוע החוקים מזהה אוטומטית אילו שאלות תשאול קדם-אנליטיות להציג לעובדת לפי סוגי הבדיקות שבהפניה (צום, עישון, תרופות), וקובע איזה פעולה תתבצע אוטומטית בעת שינוי תשובה.
+              </p>
+            </div>
+            <button onclick="addNewBackOfficeRule()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs flex items-center gap-1 shadow-2xs transition flex-shrink-0 cursor-pointer">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>הוסף חוק חדש</span>
+            </button>
+          </div>
+
+          <!-- Rules List Container -->
+          <div class="space-y-3" id="boRulesList">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+
+        <!-- TAB 2: קטלוג בדיקות והנחיות שינוע (Tests SOPs) -->
+        <div id="boPanel-tests" class="space-y-4 hidden">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="font-black text-sm text-slate-900 flex items-center gap-1.5">
+                <i data-lucide="flask-conical" class="w-4 h-4 text-maccabi-primary"></i>
+                <span>אלפון בדיקות מעבדה, סוגי מבחנות והנחיות שינוע:</span>
+              </h3>
+              <p class="text-[11px] text-slate-500">עריכת פרמטרי שאיבה, מספר היפוכים, זמני קרישה לסרכוז ודרישות טמפרטורה</p>
+            </div>
+
+            <!-- Search input -->
+            <div class="relative max-w-xs w-full">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2"></i>
+              <input type="text" id="boTestSearchInput" oninput="filterBackOfficeTests(this.value)" placeholder="חפש לפי קוד או שם בדיקה..." class="w-full pr-9 pl-3 py-1.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Tests Table -->
+          <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-2xs">
+            <table class="w-full text-right text-xs">
+              <thead class="bg-slate-100/80 text-slate-700 font-extrabold border-b border-slate-200">
+                <tr>
+                  <th class="p-3">קוד</th>
+                  <th class="p-3">שם הבדיקה</th>
+                  <th class="p-3">מבחנה / דגימה</th>
+                  <th class="p-3">היפוכים</th>
+                  <th class="p-3">זמן קרישה</th>
+                  <th class="p-3">טמפרטורת שינוע</th>
+                  <th class="p-3">יציבות</th>
+                  <th class="p-3 text-center">פעולות</th>
+                </tr>
+              </thead>
+              <tbody id="boTestsTableBody" class="divide-y divide-slate-100 bg-white">
+                <!-- Populated dynamically by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 3: טיימרים והתרעות בטיחות (Timers & Critical Alarms) -->
+        <div id="boPanel-timers" class="space-y-4 hidden">
+          <div class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200">
+            <div class="font-extrabold text-sm text-rose-950 flex items-center gap-1.5">
+              <i data-lucide="bell" class="w-4 h-4 text-rose-600"></i>
+              <span>פרוטוקולי טיימרים והתרעות קוליות בעמדת הלקיחה:</span>
+            </div>
+            <p class="text-rose-900 text-xs mt-0.5">
+              הגדרת זמני דקירה מדויקים לבדיקות דינמיות מיוחדות כדי להבטיח אבחון רפואי תקף (מניעת איחור או הקדמה בשאיבה).
+            </p>
+          </div>
+
+          <!-- Timers Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <!-- Timer 1: GCT 50g -->
+            <div class="p-4 rounded-2xl bg-white border border-rose-300 shadow-xs space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-rose-950">GCT 50g - סקר סוכרת הריון</span>
+                <span class="text-[10px] bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded-md">פעיל כעת</span>
+              </div>
+              <div class="space-y-1.5 text-slate-700">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">משך המתנה:</span>
+                  <strong class="text-slate-900">בדיוק 60 דקות</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">דגימה נדרשת:</span>
+                  <strong class="text-slate-900">פלואוריד אפורה (גלוקוז)</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">סוג התרעה:</span>
+                  <strong class="text-emerald-700">צליל סירנה + פופ-אפ אדום</strong>
+                </div>
+              </div>
+              <button onclick="playTimerAlarmSound()" class="w-full py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition cursor-pointer">
+                <i data-lucide="volume-2" class="w-3.5 h-3.5 text-rose-600"></i>
+                <span>בדיקת צליל התרעה</span>
+              </button>
+            </div>
+
+            <!-- Timer 2: OGTT 100g -->
+            <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3 opacity-90">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-900">OGTT 100g - העמסה מורחבת</span>
+                <span class="text-[10px] bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-md">מוגדר במערכת</span>
+              </div>
+              <div class="space-y-1.5 text-slate-700">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">פרוטוקול דקירות:</span>
+                  <strong class="text-slate-900">4 פעמים: 0, 60, 120, 180 דק'</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">דרישת מנוחה:</span>
+                  <strong class="text-slate-900">מנוחה מלאה בעמדה, ללא אוכל</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">התרעות:</span>
+                  <strong class="text-slate-900">התרעה מקדימה 5 דק' לפני כל שעה</strong>
+                </div>
+              </div>
+              <div class="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                מתוזמן אוטומטית לפי שעת שתיית התמיסה
+              </div>
+            </div>
+
+            <!-- Timer 3: Synacthen -->
+            <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3 opacity-90">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-900">תבחין סינאקטן (Synacthen)</span>
+                <span class="text-[10px] bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-md">אנדוקרינולוגיה</span>
+              </div>
+              <div class="space-y-1.5 text-slate-700">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">פרוטוקול דקירות:</span>
+                  <strong class="text-slate-900">0, 30 דקות, 60 דקות</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">בדיקה:</span>
+                  <strong class="text-slate-900">קורטיזול סרום (מבחנה צהובה)</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">שינוע:</span>
+                  <strong class="text-slate-900">סרכוז תוך 60 דקות והקפאה</strong>
+                </div>
+              </div>
+              <div class="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                הזרקת החומר מבוצעת ע"י אחות מוסמכת
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: סנכרון ארגוני ולוג עדכונים (Sync & Audit Trail) -->
+        <div id="boPanel-sync" class="space-y-4 hidden">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200">
+              <div class="flex items-center gap-2 text-emerald-800 font-bold">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-dot"></span>
+                <span>ממשק בוסה נובה (EMR)</span>
+              </div>
+              <div class="text-base font-black text-emerald-950 mt-1">מחובר ותקין</div>
+              <div class="text-[11px] text-emerald-700 mt-0.5">זמן תגובה: 14ms &bull; מנותק: 0</div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-sky-50 border border-sky-200">
+              <div class="flex items-center gap-2 text-sky-800 font-bold">
+                <i data-lucide="database" class="w-4 h-4 text-sky-600"></i>
+                <span>ממשק LIS מעבדה מרכזית</span>
+              </div>
+              <div class="text-base font-black text-maccabi-navy mt-1">סנכרון מלא v4.2</div>
+              <div class="text-[11px] text-sky-700 mt-0.5">פרוטוקול: HL7 / FHIR תקני</div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-indigo-50 border border-indigo-200">
+              <div class="flex items-center gap-2 text-indigo-800 font-bold">
+                <i data-lucide="map-pin" class="w-4 h-4 text-indigo-600"></i>
+                <span>מרפאות ומעבדות ברשת</span>
+              </div>
+              <div class="text-base font-black text-indigo-950 mt-1">420 עמדות פעילות</div>
+              <div class="text-[11px] text-indigo-700 mt-0.5">כל הסניפים מעודכנים לנוהל הנוכחי</div>
+            </div>
+          </div>
+
+          <!-- Audit Trail Log -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <span class="font-black text-sm text-slate-900 flex items-center gap-1.5">
+                <i data-lucide="history" class="w-4 h-4 text-indigo-600"></i>
+                <span>יומן עדכונים אחרונים בנהלי המעבדה (Audit Trail):</span>
+              </span>
+              <span class="text-[11px] text-slate-400">מתועד ברמת תקן HIPAA / ISO 15189</span>
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-700" id="boAuditTrailList">
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-900">ד\"ר שרה כהן (מנהלת מעבדה ארצית)</span>
+                  <span class="text-slate-500 mr-2">עדכנה זמן יציבות מבחנת גלוקוז פלואוריד ל-48 שעות</span>
+                </div>
+                <span class="text-[11px] text-slate-400">היום, 08:30</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-900">יעל לוי (מובילת איכות קדם-אנליטית)</span>
+                  <span class="text-slate-500 mr-2">הוסיפה איסור עישון בבוקר לתבחין נשיפה להליקובקטר (False Positive)</span>
+                </div>
+                <span class="text-[11px] text-slate-400">אתמול, 16:45</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-900">ד\"ר שרה כהן (מנהלת מעבדה ארצית)</span>
+                  <span class="text-slate-500 mr-2">אישרה עדכון סדר שאיבת מבחנות CLSI H3-A6 במעמד השולחני</span>
+                </div>
+                <span class="text-[11px] text-slate-400">07/09/2026, 11:20</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enterprise Sync Action Button -->
+          <div class="p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-300 space-y-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-extrabold text-sm text-emerald-950">הפצת נהלים וחוקים לכל 420 עמדות מכבי בארץ:</div>
+                <div class="text-xs text-emerald-800 mt-0.5">כל שינוי שבוצע בבק-אופיס יועבר מיד לעמדות העבודה בזמן אמת ללא צורך באתחול.</div>
+              </div>
+              <button onclick="syncBackOfficeToAllClinics()" id="boSyncBtn" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span>הפץ שינויים לכל העמדות 🚀</span>
+              </button>
+            </div>
+            <div id="boSyncSuccessMsg" class="hidden p-2 rounded-xl bg-emerald-200/70 text-emerald-950 text-xs font-bold flex items-center gap-1.5">
+              <i data-lucide="check-check" class="w-4 h-4 text-emerald-700"></i>
+              <span>השינויים הופצו בהצלחה ל-420 עמדות המעבדה של מכבי וסונכרנו עם ה-LIS!</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Back Office Footer -->
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-1.5 text-slate-500">
+          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+          <span>מערכת חוקים גרסה 2.4.1 &bull; ארכיון נהלים רשמי מכבי שירותי בריאות</span>
+        </div>
+        <button onclick="closeBackOfficeModal()" class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold transition shadow-xs cursor-pointer">
+          שמור וסגור בק-אופיס
+        </button>
       </div>
 
     </div>
@@ -2682,6 +3008,337 @@
       try {
         localStorage.setItem('maccabi_hide_onboarding_tour', checked ? 'true' : 'false');
       } catch (e) {}
+    }
+
+    // -------------------------------------------------------------
+    // CLINICAL BACK-OFFICE / ADMIN RULES PORTAL LOGIC
+    // -------------------------------------------------------------
+    let currentBackOfficeTab = 'rules';
+
+    let BACKOFFICE_RULES = [
+      {
+        id: "rule-fasting",
+        name: "אימות שעות צום לבדיקות שומנים וסוכר",
+        triggerTests: ["פרופיל שומנים (Lipids)", "גלוקוז בצום (Glucose)"],
+        questionText: "האם בצום מלא לפחות 8-12 שעות (שתיית מים בלבד)?",
+        conditionIfNo: "ביטול אוטומטי של פרופיל שומנים, הנחיה לבוא מחר בצום",
+        actionType: "ביטול / פיצול הפניה",
+        actionSeverity: "critical",
+        active: true
+      },
+      {
+        id: "rule-smoke",
+        name: "איסור עישון בבוקר לתבחין נשיפה (Helicobacter UBT)",
+        triggerTests: ["תבחין נשיפה להליקובקטר (UBT C13)"],
+        questionText: "לתבחין נשיפה: לא עישן, לא צחצח שיניים ולא לעס מסטיק הבוקר?",
+        conditionIfNo: "פסילת תבחין נשיפה עקב חשש לתוצאה חיובית כוזבת (False Positive)",
+        actionType: "פסילה מיידית + דחייה למועד חדש",
+        actionSeverity: "critical",
+        active: true
+      },
+      {
+        id: "rule-diabetes-meds",
+        name: "תזמון נטילת תרופות סוכרת / אינסולין מול דקירה",
+        triggerTests: ["גלוקוז בצום", "המוגלובין A1C"],
+        questionText: "האם נטל תרופות לסוכרת או הזריק אינסולין הבוקר?",
+        conditionIfNo: "אם נטל: סימון התרעה לבדיקת היפוגליקמיה ותיעוד שעת נטילה בבוסה נובה",
+        actionType: "התרעה קלינית ותיעוד שעה",
+        actionSeverity: "warning",
+        active: true
+      },
+      {
+        id: "rule-coumadin",
+        name: "נטילת קומדין / וורפרין ולחץ ממושך",
+        triggerTests: ["בדיקת קרישה PT/INR"],
+        questionText: "האם נוטל קומדין/נוגדי קרישה באופן קבוע?",
+        conditionIfNo: "שאיבת מבחנת ציטראט כחולה ראשונה ולחיצה 5 דקות על מקום הדקירה",
+        actionType: "נוהל לקיחה מיוחד",
+        actionSeverity: "info",
+        active: true
+      },
+      {
+        id: "rule-gct",
+        name: "תזמון שתיית סוכר והפעלת טיימר 60 דקות",
+        triggerTests: ["העמסת סוכר בהריון GCT 50g"],
+        questionText: "האם שתתה את כל תמיסת הסוכר תוך 5 דקות ללא הקאה?",
+        conditionIfNo: "הפעלת מונה 60 דק' מדויק. אם הקיאה - ביטול הבדיקה",
+        actionType: "טיימר חי והתרעה קולית",
+        actionSeverity: "critical",
+        active: true
+      }
+    ];
+
+    let BACKOFFICE_TESTS = [
+      { code: "0001", name: "ספירת דם (CBC)", tube: "סגולה (EDTA)", inversions: "8 פעמים", clotTime: "אין (מכילה נוגד קרישה)", temp: "חדר (18-25°C)", stability: "24 שעות" },
+      { code: "0102", name: "גלוקוז בצום (Glucose)", tube: "אפורה (פלואוריד)", inversions: "8 פעמים", clotTime: "אין (מעכב גליקוליזה)", temp: "חדר / קירור", stability: "48 שעות" },
+      { code: "0105", name: "פרופיל שומנים וטריגליצרידים", tube: "צהובה (SST ג'ל)", inversions: "5 פעמים", clotTime: "30 דקות לפני סרכוז", temp: "קירור 2-8°C", stability: "24 שעות" },
+      { code: "0108", name: "המוגלובין A1c", tube: "סגולה (EDTA)", inversions: "8 פעמים", clotTime: "אין", temp: "חדר / קירור", stability: "7 ימים" },
+      { code: "0120", name: "כימיה מורחבת (אלקטרוליטים, כבד, כליות)", tube: "צהובה (SST ג'ל)", inversions: "5 פעמים", clotTime: "30 דקות לפני סרכוז", temp: "קירור 2-8°C", stability: "24 שעות" },
+      { code: "0201", name: "תפקודי קרישה PT / INR", tube: "תכלת (נתרן ציטראט)", inversions: "3-4 פעמים עדין", clotTime: "אין", temp: "חדר (אין לקרר!)", stability: "24 שעות" },
+      { code: "0015", name: "תבחין נשיפה להליקובקטר C13", tube: "שקיות נשיפה ייעודיות", inversions: "אין", clotTime: "אין", temp: "חדר", stability: "7 ימים" },
+      { code: "0301", name: "שתן כללית ומיקרוסקופיה", tube: "כוסית סטרילית / מבחנה צהובה", inversions: "3 פעמים", clotTime: "אין", temp: "קירור 2-8°C", stability: "4 שעות" },
+      { code: "0305", name: "תרבית שתן (Urine Culture)", tube: "כוסית / מבחנת בוראט", inversions: "אין", clotTime: "אין", temp: "קירור 2-8°C", stability: "24 שעות" },
+      { code: "0401", name: "דם סמוי בצואה (FOBT)", tube: "ערכת איסוף ביתית", inversions: "אין", clotTime: "אין", temp: "חדר", stability: "3 ימים" },
+      { code: "0501", name: "תפקודי תריס TSH", tube: "צהובה (SST ג'ל)", inversions: "5 פעמים", clotTime: "30 דקות לפני סרכוז", temp: "קירור 2-8°C", stability: "48 שעות" },
+      { code: "0520", name: "בילירובין (רגיש לאור)", tube: "צהובה (עטופה ברדיד אלומיניום)", inversions: "5 פעמים", clotTime: "30 דקות", temp: "חושך מוחלט / קירור", stability: "12 שעות" }
+    ];
+
+    function openBackOfficeModal() {
+      // Restore from localStorage if customized
+      try {
+        const savedRules = localStorage.getItem('maccabi_backoffice_rules');
+        if (savedRules) BACKOFFICE_RULES = JSON.parse(savedRules);
+        const savedTests = localStorage.getItem('maccabi_backoffice_tests');
+        if (savedTests) BACKOFFICE_TESTS = JSON.parse(savedTests);
+      } catch (e) {}
+
+      renderBackOfficeRules();
+      renderBackOfficeTests();
+      switchBackOfficeTab(currentBackOfficeTab);
+
+      const modal = document.getElementById('backOfficeModal');
+      if (modal) modal.classList.remove('hidden');
+
+      playMedicalSound('pop');
+      lucide.createIcons();
+    }
+
+    function closeBackOfficeModal() {
+      const modal = document.getElementById('backOfficeModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function switchBackOfficeTab(tabId) {
+      currentBackOfficeTab = tabId;
+      const tabs = ['rules', 'tests', 'timers', 'sync'];
+
+      tabs.forEach(t => {
+        const btn = document.getElementById(`boTabBtn-${t}`);
+        const panel = document.getElementById(`boPanel-${t}`);
+
+        if (t === tabId) {
+          if (btn) {
+            btn.className = "px-3.5 py-1.5 rounded-xl font-bold bg-indigo-900 text-white shadow-2xs transition flex items-center gap-1.5 cursor-pointer";
+          }
+          if (panel) panel.classList.remove('hidden');
+        } else {
+          if (btn) {
+            btn.className = "px-3.5 py-1.5 rounded-xl font-bold text-slate-700 bg-white hover:bg-indigo-50 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer";
+          }
+          if (panel) panel.classList.add('hidden');
+        }
+      });
+
+      playMedicalSound('pop');
+      lucide.createIcons();
+    }
+
+    function renderBackOfficeRules() {
+      const container = document.getElementById('boRulesList');
+      if (!container) return;
+
+      container.innerHTML = BACKOFFICE_RULES.map((rule, idx) => `
+        <div class="p-4 rounded-2xl bg-white border ${rule.active ? 'border-indigo-200' : 'border-slate-200 opacity-60'} shadow-2xs space-y-2.5 transition">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full ${rule.active ? 'bg-indigo-900 text-white' : 'bg-slate-300 text-slate-600'} flex items-center justify-center font-black text-xs">${idx + 1}</span>
+              <h4 class="font-black text-sm text-slate-900">${rule.name}</h4>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                rule.actionSeverity === 'critical' ? 'bg-red-100 text-red-900 border border-red-300' :
+                rule.actionSeverity === 'warning' ? 'bg-amber-100 text-amber-900 border border-amber-300' :
+                'bg-sky-100 text-sky-900 border border-sky-300'
+              }">
+                ${rule.actionType}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label class="flex items-center gap-1.5 text-xs font-semibold cursor-pointer text-slate-700">
+                <input type="checkbox" ${rule.active ? 'checked' : ''} onchange="toggleBackOfficeRule('${rule.id}')" class="rounded text-indigo-600 focus:ring-indigo-400">
+                <span>חוק פעיל</span>
+              </label>
+              <button onclick="editBackOfficeRule('${rule.id}')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 hover:bg-indigo-50 text-indigo-900 transition flex items-center gap-1 cursor-pointer">
+                <i data-lucide="edit-2" class="w-3 h-3"></i>
+                <span>ערוך</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+              <span class="font-bold text-slate-500 block text-[10px]">בדיקות מפעילות:</span>
+              <span class="text-maccabi-blue font-bold">${rule.triggerTests.join(' • ')}</span>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+              <span class="font-bold text-slate-500 block text-[10px]">נוסח שאלת התשאול:</span>
+              <span class="text-slate-800 font-semibold">${rule.questionText}</span>
+            </div>
+          </div>
+
+          <div class="bg-indigo-50/50 p-2 rounded-xl border border-indigo-100 text-indigo-950 flex items-center justify-between text-xs">
+            <span class="font-medium">השפעה בעת תשובה שלילית: <strong>${rule.conditionIfNo}</strong></span>
+            <span class="text-emerald-700 font-bold text-[10px]">מסונכרן עם עמדת הלקיחה ✓</span>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function toggleBackOfficeRule(ruleId) {
+      const rule = BACKOFFICE_RULES.find(r => r.id === ruleId);
+      if (rule) {
+        rule.active = !rule.active;
+        saveBackOfficeRulesToStorage();
+        renderBackOfficeRules();
+        playMedicalSound('pop');
+      }
+    }
+
+    function editBackOfficeRule(ruleId) {
+      const rule = BACKOFFICE_RULES.find(r => r.id === ruleId);
+      if (!rule) return;
+      const newQuestion = prompt("ערוך את שאלת התשאול לעמדה:", rule.questionText);
+      if (newQuestion && newQuestion.trim()) {
+        rule.questionText = newQuestion.trim();
+        saveBackOfficeRulesToStorage();
+        renderBackOfficeRules();
+        alert(`החוק "${rule.name}" עודכן בהצלחה ויוחל מעתה בכל עמדות המעבדה!`);
+      }
+    }
+
+    function addNewBackOfficeRule() {
+      const name = prompt("הזן שם לחוק הקליני החדש (לדוגמה: אימות תרופות בלוטת התריס לפני TSH):");
+      if (!name) return;
+      const question = prompt("הזן את שאלת התשאול לעובדת בעמדה:");
+      if (!question) return;
+
+      BACKOFFICE_RULES.unshift({
+        id: "rule-" + Date.now(),
+        name: name,
+        triggerTests: ["בדיקת מעבדה מוגדרת"],
+        questionText: question,
+        conditionIfNo: "הנחיית איכות ותיעוד בתיק המטופל",
+        actionType: "התרעה והנחיה",
+        actionSeverity: "warning",
+        active: true
+      });
+
+      saveBackOfficeRulesToStorage();
+      renderBackOfficeRules();
+      playMedicalSound('success');
+      alert("חוק קליני חדש נוסף למנוע החוקים הארצי!");
+    }
+
+    function saveBackOfficeRulesToStorage() {
+      try {
+        localStorage.setItem('maccabi_backoffice_rules', JSON.stringify(BACKOFFICE_RULES));
+      } catch (e) {}
+    }
+
+    function renderBackOfficeTests(filterTerm = '') {
+      const tbody = document.getElementById('boTestsTableBody');
+      if (!tbody) return;
+
+      const term = (filterTerm || '').toLowerCase().trim();
+      const filtered = BACKOFFICE_TESTS.filter(t => 
+        !term || t.name.toLowerCase().includes(term) || t.code.includes(term) || t.tube.toLowerCase().includes(term)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">לא נמצאו בדיקות התואמות לחיפוש "${filterTerm}"</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(t => `
+        <tr class="hover:bg-indigo-50/40 transition">
+          <td class="p-3 font-black text-indigo-900">${t.code}</td>
+          <td class="p-3 font-bold text-slate-900">${t.name}</td>
+          <td class="p-3 font-semibold text-slate-700">${t.tube}</td>
+          <td class="p-3 text-slate-600">${t.inversions}</td>
+          <td class="p-3 text-slate-600">${t.clotTime}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded-md font-bold text-[10px] ${
+              t.temp.includes('קירור') ? 'bg-sky-100 text-sky-800' :
+              t.temp.includes('חושך') ? 'bg-amber-100 text-amber-900' :
+              'bg-slate-100 text-slate-700'
+            }">
+              ${t.temp}
+            </span>
+          </td>
+          <td class="p-3 text-slate-600 font-medium">${t.stability}</td>
+          <td class="p-3 text-center">
+            <button onclick="editBackOfficeTest('${t.code}')" class="px-2 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-900 font-bold text-[11px] transition shadow-2xs cursor-pointer">
+              ערוך
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function filterBackOfficeTests(val) {
+      renderBackOfficeTests(val);
+    }
+
+    function editBackOfficeTest(code) {
+      const test = BACKOFFICE_TESTS.find(t => t.code === code);
+      if (!test) return;
+
+      const newTemp = prompt(`עריכת טמפרטורת שינוע עבור ${test.name} (${test.code}):`, test.temp);
+      if (newTemp !== null && newTemp.trim()) {
+        test.temp = newTemp.trim();
+        const newStability = prompt(`עריכת זמן יציבות הדגימה:`, test.stability);
+        if (newStability !== null && newStability.trim()) {
+          test.stability = newStability.trim();
+        }
+        try {
+          localStorage.setItem('maccabi_backoffice_tests', JSON.stringify(BACKOFFICE_TESTS));
+        } catch (e) {}
+        renderBackOfficeTests(document.getElementById('boTestSearchInput')?.value || '');
+        playMedicalSound('success');
+        alert(`נוהל השינוע עבור ${test.name} עודכן בהצלחה!`);
+      }
+    }
+
+    function syncBackOfficeToAllClinics() {
+      const btn = document.getElementById('boSyncBtn');
+      const msg = document.getElementById('boSyncSuccessMsg');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span><span>מפיץ שינויים ברשת מכבי...</span>';
+      }
+
+      playMedicalSound('pop');
+
+      setTimeout(() => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i><span>הופץ בהצלחה ל-420 מרפאות</span>';
+          btn.className = "px-5 py-2.5 bg-emerald-700 text-white font-black text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-default";
+        }
+        if (msg) msg.classList.remove('hidden');
+
+        // Add to audit trail log
+        const auditList = document.getElementById('boAuditTrailList');
+        if (auditList) {
+          const nowStr = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+          const newEntry = document.createElement('div');
+          newEntry.className = "p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between animate-fade-in";
+          newEntry.innerHTML = `
+            <div>
+              <span class="font-bold text-emerald-950">ד"ר שרה כהן (מנהלת מעבדה ארצית)</span>
+              <span class="text-emerald-800 mr-2">הפיצה עדכון נהלים וחוקי תשאול לכל 420 עמדות הלקיחה ברחבי הארץ</span>
+            </div>
+            <span class="text-[11px] text-emerald-700 font-bold">היום, ${nowStr}</span>
+          `;
+          auditList.insertBefore(newEntry, auditList.firstChild);
+        }
+
+        playMedicalSound('success');
+        lucide.createIcons();
+      }, 1000);
     }
 
     // -------------------------------------------------------------
