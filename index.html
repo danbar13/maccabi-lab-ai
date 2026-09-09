@@ -1,0 +1,3232 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מעבדה AI - מכבי שירותי בריאות | סייען חכם ללקיחת בדיקות</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            maccabi: {
+              dark: '#002642',
+              navy: '#003C71',
+              blue: '#00529B',
+              primary: '#0075C9',
+              light: '#E6F3FB',
+              cyan: '#00A3E0',
+              accent: '#00B4D8',
+              soft: '#F4F8FB'
+            },
+            specimen: {
+              blood: '#DC2626',
+              bloodLight: '#FEE2E2',
+              urine: '#D97706',
+              urineLight: '#FEF3C7',
+              stool: '#854D0E',
+              stoolLight: '#FEF9C3',
+              breath: '#2563EB',
+              breathLight: '#DBEAFE',
+              bacteriology: '#16A34A',
+              bacteriologyLight: '#DCFCE7'
+            }
+          },
+          fontFamily: {
+            sans: ['Heebo', 'Rubik', 'sans-serif'],
+            display: ['Heebo', 'Rubik', 'sans-serif'],
+          },
+          boxShadow: {
+            'glow-cyan': '0 0 15px -3px rgba(0, 163, 224, 0.45)',
+            'glow-blue': '0 0 20px -5px rgba(0, 82, 155, 0.35)',
+            'card-hover': '0 10px 25px -5px rgba(0, 43, 73, 0.08), 0 8px 10px -6px rgba(0, 43, 73, 0.04)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      font-family: 'Heebo', sans-serif;
+      background-color: #BDE0F7;
+      background-image: 
+        radial-gradient(at 0% 0%, #D6EEFC 0px, transparent 50%),
+        radial-gradient(at 100% 100%, #9BD0F4 0px, transparent 55%),
+        radial-gradient(circle at 1px 1px, rgba(0, 91, 150, 0.20) 1.2px, transparent 0);
+      background-size: 100% 100%, 100% 100%, 20px 20px;
+      background-attachment: fixed;
+      color: #0F172A;
+      user-select: none;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #94A3B8;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #64748B;
+    }
+
+    /* REALISTIC VACUTAINER TUBES */
+    .vac-tube {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.14));
+      transition: transform 0.2s ease;
+    }
+    .vac-tube:hover {
+      transform: translateY(-2px) scale(1.04);
+    }
+    .vac-cap {
+      width: 22px;
+      height: 12px;
+      border-radius: 4px 4px 1.5px 1.5px;
+      position: relative;
+      box-shadow: inset 0 2px 2px rgba(255,255,255,0.4), inset 0 -2px 3px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.2);
+      border: 1px solid rgba(0,0,0,0.2);
+    }
+    .vac-cap::before {
+      content: '';
+      position: absolute;
+      top: 1px;
+      left: 4px;
+      right: 4px;
+      height: 2px;
+      background: rgba(255,255,255,0.4);
+      border-radius: 1px;
+    }
+    .vac-cap::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      background: rgba(0,0,0,0.15);
+      border-radius: 1px;
+    }
+    .vac-body {
+      width: 16px;
+      height: 46px;
+      border-radius: 0 0 8px 8px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.7) 0%, rgba(240,249,255,0.2) 35%, rgba(200,225,245,0.3) 75%, rgba(255,255,255,0.6) 100%);
+      border: 1px solid rgba(148,163,184,0.5);
+      border-top: none;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.06);
+    }
+    .vac-liquid {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      border-radius: 0 0 7px 7px;
+      opacity: 0.88;
+      box-shadow: inset 0 2px 3px rgba(255,255,255,0.35);
+    }
+    .vac-fill-line {
+      position: absolute;
+      top: 10px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #000000;
+      box-shadow: 0 0 1px #FFF;
+      z-index: 5;
+    }
+    .vac-barcode {
+      position: absolute;
+      top: 5px;
+      left: 1.5px;
+      width: 7px;
+      height: 20px;
+      background: rgba(255,255,255,0.92);
+      border-radius: 1px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      padding: 1px;
+      box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    }
+    .vac-barcode-line {
+      height: 1px;
+      background: #334155;
+      width: 100%;
+    }
+
+    /* Virtual Tube Rack Slot */
+    .rack-slot {
+      background: linear-gradient(180deg, #E2E8F0 0%, #CBD5E1 100%);
+      border-radius: 12px;
+      padding: 10px 8px 6px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.05);
+      border: 1px solid #94A3B8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 72px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      position: relative;
+    }
+    .rack-slot:hover {
+      border-color: #0075C9;
+      background: linear-gradient(180deg, #EFF6FF 0%, #DBEAFE 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px -2px rgba(0, 117, 201, 0.25);
+    }
+    .rack-slot.collected {
+      background: linear-gradient(180deg, #DCFCE7 0%, #BBF7D0 100%) !important;
+      border-color: #16A34A !important;
+      box-shadow: 0 0 12px rgba(22, 163, 74, 0.3) !important;
+    }
+    .rack-slot.collected .vac-tube {
+      opacity: 0.95;
+      transform: scale(0.98);
+    }
+    .rack-slot-check {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #16A34A;
+      color: white;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+      z-index: 10;
+    }
+    .rack-slot.collected .rack-slot-check {
+      display: flex;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0); }
+      70% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .rack-hole {
+      width: 24px;
+      height: 8px;
+      border-radius: 50%;
+      background: #475569;
+      box-shadow: inset 0 2px 3px rgba(0,0,0,0.5);
+      margin-top: 4px;
+    }
+
+    /* Row Card Accent Stripes */
+    .test-row-card {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .test-row-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px -2px rgba(0, 43, 73, 0.08);
+    }
+
+    /* Glowing Pulse */
+    @keyframes subtlePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.15); }
+    }
+    .pulse-dot {
+      animation: subtlePulse 2s infinite ease-in-out;
+    }
+
+    /* Print styles */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #protocolExecutionModal, #protocolExecutionModal *, #printSummaryModal, #printSummaryModal * {
+        visibility: visible;
+      }
+      #protocolExecutionModal, #printSummaryModal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <!-- TOP NAV BAR: Maccabi Brand & Patient Switcher -->
+  <header class="bg-white border-b-2 border-sky-400/80 sticky top-0 z-30 shadow-md shadow-sky-950/5">
+    <div class="max-w-[1780px] mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Maccabi Branding & App Title -->
+      <div class="flex items-center gap-3.5">
+        <div class="flex items-center gap-3 pl-3.5 border-l border-slate-200">
+          <!-- Official Maccabi Healthcare Services Vector Logo -->
+          <div class="h-11 px-2.5 py-1 bg-white/95 rounded-xl border border-sky-200/90 shadow-2xs flex items-center justify-center hover:border-sky-300 transition cursor-default" title="מכבי שירותי בריאות - סמליל רשמי">
+            <svg class="h-8 w-auto" viewBox="0 0 996.8 409.215" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="לוגו רשמי של מכבי שירותי בריאות">
+              <defs>
+                <radialGradient id="maccabiOfficialGrad" cx="440.48" cy="140.63" r="388.12" fx="440.48" fy="140.63" gradientTransform="matrix(-1.1478e-8 0.7316 -0.7316 -3.4572e-5 492.05 -100.67)" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#00ACED"/>
+                  <stop offset="1" stop-color="#004975"/>
+                </radialGradient>
+              </defs>
+              <g>
+                <!-- Stylized 'מכבי' lettering -->
+                <path fill="url(#maccabiOfficialGrad)" d="m 30.026,123.979 c -15.529,0 -24.249,4.819 -27.917,13.747 v 29.626 c 1.311,4.23 5.48,7.561 9.825,7.561 h 8.212 c 10.768,0 12.758,4.096 14.443,13.625 l 2.156,12.302 2.63,14.819 0.67,5.355 c 3.962,22.341 16.163,30.59 38.919,30.59 h 27.067 c 4.278,0 7.23,-3.093 7.176,-7.202 -0.013,-0.428 -0.061,-0.874 -0.128,-1.297 L 108.5,214.82 106.03,200.84 100.249,168.191 C 95.355,140.482 81.267,123.98 49.835,123.98 H 30.026 z m 124.005,0 c -21.539,0 -29.939,9.261 -30.026,25.819 -0.028,3.833 0.4,8.037 1.211,12.596 l 0.837,4.81 c 1.217,4.295 5.467,7.708 9.877,7.708 h 49.938 c 26.444,0 36.599,12.838 40.232,33.493 l 3.563,20.282 c 0.91,5.07 1.553,9.824 1.565,14.054 0.08,12.743 -5.348,21.126 -25.542,21.126 h -53.758 c -4.25,0 -7.236,3.145 -7.128,7.215 0,0.415 0.039,0.856 0.128,1.297 l 1.365,7.938 c 4.898,27.697 20.085,36.374 46.51,36.374 h 145.155 c 11.553,0 16.078,-4.62 16.091,-10.606 0.026,-3.854 -1.795,-8.27 -4.801,-12.423 -1.107,-1.483 -21.543,-28.444 -21.543,-28.444 -0.69,-0.883 -1.687,-1.406 -2.678,-1.406 h -32.441 -0.054 c -4.838,0 -8.72,-1.683 -10.928,-4.563 -1.246,-1.674 -1.888,-3.655 -1.914,-5.796 -0.022,-1.7 0.326,-3.495 1.064,-5.368 0.428,-0.991 9.049,-22.648 10.982,-27.337 l 0.108,-1.35 v -0.052 l -0.578,-1.367 c -3.519,-4.632 -21.009,-27.761 -21.712,-28.713 -2,-2.651 -2.745,-4.659 -2.745,-6.506 0.021,-1.111 0.309,-2.171 0.757,-3.27 1.151,-2.941 4.524,-4.576 9.365,-4.576 h 36.142 c 1.032,0 1.687,-0.761 1.659,-1.7 0,-0.199 -0.052,-0.441 -0.119,-0.67 -11.353,-28.427 -37.905,-48.563 -77.494,-48.563 h -83.088 z m 205.9,0 c -11.571,0 -16.139,4.728 -16.165,10.749 -0.026,3.854 1.808,8.245 4.853,12.276 2.946,3.841 20.027,26.507 20.027,26.507 c 0.627,0.826 1.674,1.401 2.63,1.401 h 49.402 c 4.84,0 8.785,1.583 10.995,4.576 c 1.272,1.661 1.917,3.642 1.934,5.788 0,1.67 -0.358,3.465 -1.094,5.312 -0.377,0.792 -10.931,27.216 -11,27.32 -0.108,0.351 -0.147,0.709 -0.135,1.073 0.014,0.614 0.251,1.259 0.671,1.765 0,0 19.971,26.507 20.603,27.337 c 2.375,3.162 3.581,6.198 3.552,8.742 -0.014,0.844 -0.152,1.635 -0.441,2.353 -1.203,2.95 -4.524,4.633 -9.417,4.633 h -44.73 c -0.995,0 -1.834,0.523 -2.163,1.354 0,0 -9.715,24.656 -11.238,28.497 -0.896,2.249 -1.372,4.62 -1.372,6.946 -0.013,8.314 6.043,16.083 20.862,16.083 h 14.46 34.172 c 46.474,0 72.293,-21.913 72.202,-66.717 -0.014,-7.82 -0.826,-16.333 -2.444,-25.534 l -1.531,-8.668 C 501.799,143.388 455.374,123.98 411.911,123.98 h -51.98 z m 313.338,-1.059 c -28.864,0 -50.418,7.847 -53.144,39.172 -0.246,4.014 -1.973,5.875 -4.014,5.875 -2.375,0 -5.139,-2.5 -6.497,-7.081 -7.259,-24.335 -23.401,-36.906 -50.622,-36.906 h -12.631 c -21.476,0 -29.863,9.261 -29.993,25.819 -0.025,3.833 0.39,8.037 1.198,12.596 0,0 0.315,1.54 0.831,4.81 c 0.839,4.71 5.376,8.244 11.93,8.244 11.679,0 14.884,3.616 16.723,14.335 l 21.026,118.594 c 1.15,4.416 5.411,7.95 9.936,7.95 h 31.693 c 18.439,0 28.367,-3.668 28.293,-18.833 -0.013,-2.479 -0.303,-5.26 -0.852,-8.396 l -13.028,-74.174 c -0.623,-3.478 -0.913,-6.774 -0.926,-9.854 -0.053,-18.859 10.684,-30.158 25.736,-30.158 h 9.08 c 23.072,0 34.808,10.364 39.163,35.071 l 3.374,19.396 c 0.757,4.273 1.224,8.206 1.25,11.783 c 0.095,14.045 -6.51,22.385 -28.172,22.385 h -10.936 c -4.277,0 -7.241,3.141 -7.154,7.215 0,0.441 0.039,0.856 0.121,1.298 l 0.52,2.984 c 5.563,31.335 19.819,44.588 51.992,44.588 h 7.311 c 36.832,0 62.941,-20.175 62.863,-61.83 -0.013,-6.375 -0.648,-13.253 -1.946,-20.641 L 771.03,206.61 c -11.666,-65.964 -49.821,-83.69 -90.672,-83.69 h -7.089 z" />
+                <!-- Upper Cyan Arc -->
+                <path fill="#00AEEF" d="M986.945,241.885C962.925,109.602,684.883,2.419,365.948,2.419c-41.96,0-82.546,1.847-121.327,5.381 c48.072-0.59,99.276,2.208,152.523,8.433c318.309,37.185,531.078,163.404,537.865,288.045c1.558,28.609-9.417,54.536-30.694,77.038 C965.119,342.039,996.392,293.892,986.945,241.885" />
+                <!-- Deep Blue Arc -->
+                <path fill="#0057A3" d="M994.917,227.789C971.092,97.261,720.05-30.031,262.807,6.286c33.231-2.543,67.688-3.882,103.149-3.882 c318.936,0,596.981,107.198,620.984,239.481c9.455,52.019-21.827,100.154-82.627,139.43 C965.53,348.415,1006.211,289.674,994.917,227.789" />
+                <!-- Slogan: שירותי בריאות -->
+                <path fill="#0057A3" d="M218.196,408.492c-3.426,0-6.966-1.284-7.704-5.558l-0.327-1.791l-4.042-22.942 c-1.058-6.082-3.635-8.651-9.116-8.651h-6.158c-4.265,0-5.597,3.426-4.961,6.964l3.013,17.038 c1.592,9.063-1.933,14.404-11.225,14.404h-0.329c-5.206,0-9.583-3.629-10.608-9.399l-0.563-3.196h5.537 c2.684,0,4.304-1.604,3.854-4.27l-1.773-9.905c-0.46-2.682-0.421-7.259,5.02-8.53l0.917-0.212c1.84-0.445,1.661-2.894-0.681-2.894 h-13.273l-0.67-3.841c-0.889-5.113,1.559-8.085,6.566-8.085h24.524c13.995,0,20.654,7.656,22.737,19.396l4.25,24.124l0.301,1.687 C224.228,407.1,221.39,408.492,218.196,408.492 M794.804,383.443l-3.686-21.014c-0.757-4.273-4.17-5.571-7.582-5.571 c-3.197,0-6.048,1.393-5.29,5.649c0,0,3.191,18.193,4.122,23.427c1.124,6.411-4.517,11.272-12.635,11.272h-2.92 c-3.819,0-3.098-3.132-1.727-3.348l1.346-0.187c4.724-0.964,6.333-3.962,5.511-8.543l-3.871-22.7 c-0.749-4.273-4.188-5.571-7.604-5.571c-3.192,0-6.03,1.393-5.277,5.649l4.823,27.415c0.415,2.306-1.216,5.251-4.412,5.251 c-3.815,0-6.047-2.812-6.826-7.379c-0.821-4.533-4.485-25.365-4.485-25.365c-0.739-4.273-4.286-5.571-7.561-5.571 c-3.228,0-6.173,1.393-5.429,5.649c0.657,3.686,3.451,19.586,4.45,25.166c2.565,14.568,17.739,20.494,30.201,20.494h2.916 C782.878,408.168,796.989,398.669,794.804,383.443 M713.384,390.234c-3.412,0-6.855-2.024-7.557-5.986l-0.303-1.782l-1.674-9.396 c-0.394-2.249-1.791-3.521-4.576-3.521h-5.849l-0.67-3.841c-0.926-5.113,0.903-8.085,5.917-8.085h4.576 c7.033,0,11.247,3.188,12.558,10.654l2.495,14.188l0.29,1.704C719.363,388.439,716.603,390.234,713.384,390.234 M681.523,408.492 c-3.426,0-6.852-1.284-7.574-5.558l-0.329-1.791l-3.884-21.888c-1.216-7.042-4.685-9.706-11.074-9.706H638.83l-0.692-3.841 c-0.887-5.113,1.566-8.085,6.579-8.085h14.819c12.479,0,20.603,7.362,22.926,20.481l4.044,23.038l0.299,1.687 C687.57,407.1,684.714,408.492,681.523,408.492 M626.588,408.492c-3.388,0-6.722-1.284-7.471-5.558l-5.255-29.864 c-0.407-2.249-1.809-3.521-4.577-3.521h-5.865l-0.675-3.841c-0.904-5.113,0.908-8.085,5.935-8.085h4.581 c7.569,0,11.312,3.612,12.722,11.701l5.618,31.818l0.299,1.687C632.644,407.1,629.793,408.492,626.588,408.492 M591.742,408.492 c-3.426,0-6.981-1.284-7.717-5.558l-0.303-1.791l-4.054-22.942c-1.06-6.082-3.65-8.651-9.092-8.651h-6.182 c-4.265,0-5.597,3.426-4.974,6.964l3.01,17.038c1.597,9.063-1.934,14.404-11.194,14.404h-0.342c-5.221,0-9.598-3.629-10.623-9.399 l-0.55-3.196h5.563c2.644,0,4.291-1.604,3.815-4.27l-1.734-9.905c-0.489-2.682-0.433-7.259,4.979-8.53l0.947-0.212 c1.825-0.445,1.631-2.894-0.67-2.894H539.32l-0.683-3.841c-0.874-5.113,1.574-8.085,6.579-8.085h24.538 c13.968,0,20.642,7.656,22.71,19.396l4.265,24.124l0.303,1.687C597.785,407.1,594.934,408.492,591.742,408.492 M521.322,390.247 c-3.387,0-6.852-2.037-7.535-5.999l-0.329-1.782l-1.661-9.396c-0.394-2.249-1.79-3.521-4.563-3.521h-5.856l-0.684-3.841 c-0.899-5.113,0.935-8.085,5.926-8.085h4.59c7.051,0,11.225,3.188,12.544,10.654l2.491,14.188l0.308,1.704 C527.312,388.439,524.514,390.247,521.322,390.247 M422.271,407.303l-0.762-4.368c-0.77-4.499,1.873-7.574,6.03-7.574h12.267 c6.605,0,8.154-3.949,7.155-9.599l-1.333-7.561c-1.008-5.758-4.187-8.651-10.372-8.651H416.6l-0.688-3.841 c-0.892-5.113,1.453-8.085,6.471-8.085h13.201c13.665,0,20.914,6.597,22.99,18.336l0.723,4.14c0.931,5.325-0.588,9.399-4.975,11.657 l-1.289,0.619c-1.371,0.652-1.06,2.984,1.229,2.984h3.461c5,0,7.838,2.651,8.742,7.898l0.718,4.044H422.271z M403.619,408.492 c-3.387,0-6.83-1.284-7.591-5.558l-0.32-1.791l-3.85-21.888c-1.233-7.042-4.685-9.706-11.104-9.706h-19.833l-0.675-3.841 c-0.904-5.113,1.579-8.085,6.566-8.085h14.819c12.475,0,20.611,7.362,22.93,20.481l4.062,23.038l0.29,1.687 C409.675,407.1,406.811,408.492,403.619,408.492 M346.016,390.247c-3.413,0-6.869-2.037-7.55-5.999l-0.313-1.782l-1.661-9.396 c-0.394-2.249-1.78-3.521-4.563-3.521h-5.863l-0.677-3.841c-0.904-5.113,0.917-8.085,5.911-8.085h4.604 c7.046,0,11.225,3.188,12.531,10.654l2.522,14.188l0.29,1.704C351.994,388.439,349.229,390.247,346.016,390.247 M309.184,379.697 l-2.355,1.168c-1.466,0.744-2.485,1.695-2.042,4.04l12.101,9.503c3.594,2.756,5.502,7.565,3.426,10.87l-2.516,3.937l-31.39-24.525 c-3.006,0-4.077,1.825-3.716,3.75l2.23,12.704l0.32,1.791c0.75,4.273-2.221,5.558-5.413,5.558c-3.428,0-7.176-1.284-7.912-5.558 l-0.316-1.791l-1.017-5.662c-0.878-5.117,0.234-8.435,4.497-10.883l2.109-1.272c1.553-0.86,2.878-1.311,2.403-3.962l-10.133-7.872 c-4.438-3.439-6.237-8.231-3.715-11.952l2.102-3.2l30.112,23.236h0.655c2.537,0,3.748-1.713,3.415-3.616l-2.042-11.523l-0.262-1.496 c-0.75-4.257,2.236-6.082,5.428-6.082c3.426,0,7.049,1.825,7.758,5.879l0.259,1.483l0.965,5.545 C314.933,374.144,313.507,377.557,309.184,379.697 M253.056,408.492c-3.415,0-6.735-1.284-7.483-5.558l-5.269-29.864 c-0.394-2.249-1.793-3.521-4.563-3.521h-5.863l-0.69-3.841c-0.891-5.113,0.923-8.085,5.937-8.085h4.579 c7.583,0,11.311,3.612,12.736,11.701l5.615,31.818l0.274,1.687C259.111,407.1,256.248,408.492,253.056,408.492" />
+              </g>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-black text-xl text-maccabi-navy tracking-tight">מעבדה AI</span>
+              <span class="text-[10px] bg-gradient-to-r from-sky-500 to-maccabi-primary text-white font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider shadow-xs">AIנשטיין</span>
+              <span class="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block"></span>גרסה v2.0
+              </span>
+            </div>
+            <div class="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5 mt-0.5">
+              <span>סייען קדם-אנליטי חכם לעובדות המעבדה</span>
+              <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot inline-block"></span>
+              <span class="text-emerald-700 text-[10px] font-bold">מחובר ישירות לבוסה נובה</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Layers Tagline -->
+        <div class="hidden xl:flex items-center gap-2 bg-gradient-to-r from-sky-50 to-slate-50 px-3 py-1.5 rounded-xl border border-sky-100/80 text-xs text-slate-600">
+          <i data-lucide="layers" class="w-4 h-4 text-maccabi-primary"></i>
+          <span class="font-medium">3 שכבות תמיכה: <strong class="text-maccabi-navy">התמצאות</strong> &bull; <strong class="text-amber-800">תשומת לב</strong> &bull; <strong class="text-emerald-800">פעולה</strong></span>
+        </div>
+      </div>
+
+      <!-- Patient Switcher (5 Test Cases) -->
+      <div class="flex items-center gap-1.5 bg-slate-100/90 p-1 rounded-2xl border border-slate-200/80 shadow-2xs">
+        <span class="text-xs font-extrabold text-maccabi-navy px-2 flex items-center gap-1">
+          <i data-lucide="users" class="w-3.5 h-3.5 text-maccabi-primary"></i>
+          <span>החלף מטופל:</span>
+        </span>
+        <div class="flex items-center gap-1" id="patientSelectorContainer">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Actions & Quick Help -->
+      <div class="flex items-center gap-2">
+        <div class="hidden md:flex items-center rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs">
+          <button onclick="setViewMode('all')" id="viewModeBtn-all" class="px-2.5 py-1 rounded-lg font-bold bg-white text-maccabi-blue shadow-2xs transition flex items-center gap-1">
+            <i data-lucide="columns-3" class="w-3.5 h-3.5"></i>
+            <span>3 חלונות</span>
+          </button>
+          <button onclick="setViewMode('split')" id="viewModeBtn-split" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1">
+            <i data-lucide="split" class="w-3.5 h-3.5"></i>
+            <span>בוסה נובה + AI</span>
+          </button>
+          <button onclick="setViewMode('ai')" id="viewModeBtn-ai" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1">
+            <i data-lucide="layout-panel-left" class="w-3.5 h-3.5"></i>
+            <span>סייען בלבד</span>
+          </button>
+        </div>
+
+        <button onclick="toggleAudioFeedback()" id="audioToggleBtn" class="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition shadow-2xs" title="צלילי משוב קוליים בעת פעולות">
+          <i data-lucide="volume-2" id="audioToggleIcon" class="w-4 h-4 text-emerald-600"></i>
+          <span id="audioToggleText">צליל פעיל</span>
+        </button>
+        <button onclick="toggleFullScreen()" id="fullscreenBtn" class="hidden sm:flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 transition" title="מסך מלא לתצוגת עמדה">
+          <i data-lucide="maximize" class="w-4 h-4 text-slate-500"></i>
+        </button>
+        <button onclick="toggleBossaNovaPanel()" id="bossaNovaToggleBtn" class="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50 text-maccabi-blue hover:bg-sky-100 transition">
+          <i data-lucide="sidebar" class="w-4 h-4 text-maccabi-primary"></i>
+          <span id="bossaToggleText">הסתר בוסה נובה</span>
+        </button>
+        <button onclick="toggleActionDrawer()" id="actionDrawerToggleBtn" class="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 transition" title="כווץ/הרחב פאנל סדר מבחנות">
+          <i data-lucide="clipboard-list" class="w-4 h-4 text-slate-500"></i>
+          <span id="actionDrawerToggleText">פאנל פעולה</span>
+        </button>
+        <button onclick="openAlfonChatModal()" class="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-gradient-to-r from-maccabi-navy to-maccabi-blue hover:from-maccabi-dark hover:to-maccabi-navy text-white shadow-xs hover:shadow-md transition">
+          <i data-lucide="sparkles" class="w-4 h-4 text-sky-300"></i>
+          <span>שאל את אלפון AI</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- UPGRADE ANNOUNCEMENT BANNER (Dismissible) -->
+  <div id="upgradeBanner" class="bg-gradient-to-r from-maccabi-navy via-maccabi-blue to-maccabi-primary text-white text-xs px-4 py-2 flex items-center justify-between shadow-xs border-b border-sky-400/20">
+    <div class="flex items-center gap-2.5 flex-wrap">
+      <span class="bg-emerald-500 text-white font-black px-2 py-0.5 rounded-md text-[10px] uppercase shadow-2xs">שודרג בהצלחה</span>
+      <span class="font-medium text-[11px]">מעמד מבחנות שולחני ריאליסטי בפאנל הפעולה ובחלון המרוכז • צלילי משוב רפואיים (כפתור השתקה בסרגל) • טיימר 60 דק' להעמסת סוכר במקרה 4 • אלפון AI מותאם למקרה</span>
+    </div>
+    <button onclick="document.getElementById('upgradeBanner').style.display='none'" class="text-white/70 hover:text-white p-1" title="סגור הודעה">
+      <i data-lucide="x" class="w-3.5 h-3.5"></i>
+    </button>
+  </div>
+
+  <!-- PATIENT HERO STRIP (Floating White Island) -->
+  <section class="max-w-[1780px] w-full mx-auto px-3 md:px-4 pt-3 pb-1">
+    <div class="bg-white rounded-2xl border-2 border-sky-300 shadow-md shadow-sky-950/10 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+      
+      <div class="flex items-center gap-3.5 flex-wrap">
+        <!-- Patient ID & Avatar -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-100 to-sky-100 border-2 border-sky-200/80 flex items-center justify-center font-black text-maccabi-navy text-sm shadow-inner" id="pAvatar">
+            דל
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 class="font-black text-base text-slate-900 tracking-tight" id="pName">דני לוי</h1>
+              <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold" id="pId">ת.ז 123456789</span>
+              <span class="text-slate-500 font-medium" id="pAgeGender">בן 39 (12/03/1985)</span>
+              <span class="inline-flex items-center gap-1 bg-emerald-100/80 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-[10px]">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block"></span>
+                <span>תור 42 בעמדה 3 (נוכח)</span>
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-500 flex items-center gap-2 mt-1 flex-wrap font-medium">
+              <span id="pClinic">סניף: מרכז רפואי בלפור ת"א</span>
+              <span>&bull;</span>
+              <span id="pDoc">רופא מפנה: ד"ר ישראלי רון</span>
+              <span>&bull;</span>
+              <span class="text-amber-800 font-bold bg-amber-50 border border-amber-200 px-2 py-0.2 rounded-md" id="pScenarioBadge">מקרה 1: הפניות מעורבות + צום</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clinical Dilemma Card (Demonstrating pre-analytical intelligence) -->
+        <div class="flex items-center gap-2.5 bg-gradient-to-r from-sky-50 to-indigo-50/50 border border-sky-200/90 text-sky-950 px-3.5 py-1.5 rounded-xl text-[11px] shadow-2xs max-w-xl">
+          <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-maccabi-navy to-maccabi-blue text-white flex items-center justify-center flex-shrink-0 shadow-2xs">
+            <i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-sky-300"></i>
+          </div>
+          <div>
+            <span class="font-black text-maccabi-navy">האתגר הקדם-אנליטי במקרה זה:</span>
+            <span id="pDilemmaText" class="font-medium text-slate-700 leading-snug">טוען נתוני מקרה...</span>
+          </div>
+        </div>
+
+        <!-- Ramon Preventive Alert -->
+        <div class="flex items-center gap-2 bg-gradient-to-r from-emerald-50 to-white border border-emerald-200 text-emerald-900 px-3 py-1.5 rounded-xl text-[11px] shadow-2xs">
+          <div class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          </div>
+          <div>
+            <span class="font-extrabold text-emerald-950">רפואה מונעת (רמון):</span>
+            <span id="ramonAlertText" class="font-medium text-emerald-900">אין בדיקות מונעות פתוחות לביקור זה</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Specimen Legend (Layer 1: Orientation) -->
+      <div class="flex items-center gap-2 bg-slate-50/80 border border-slate-200/80 px-3 py-1.5 rounded-2xl shadow-2xs">
+        <span class="text-[11px] font-extrabold text-slate-500 flex items-center gap-1 pl-1 border-l border-slate-200">
+          <i data-lucide="palette" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>מקרא:</span>
+        </span>
+        <div class="flex items-center gap-1.5 text-[11px] font-bold">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-red-50 text-red-700 border border-red-200/70"><span class="w-2 h-2 rounded-full bg-red-600"></span>דם</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200/70"><span class="w-2 h-2 rounded-full bg-amber-500"></span>שתן</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-yellow-50 text-yellow-900 border border-yellow-300/70"><span class="w-2 h-2 rounded-full bg-yellow-800"></span>צואה</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200/70"><span class="w-2 h-2 rounded-full bg-blue-600"></span>נשיפה</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200/70"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>בקטריולוגיה</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- MAIN DUAL-PANE / THREE-PANE WORKSPACE -->
+  <main class="flex-1 max-w-[1780px] w-full mx-auto p-3 md:p-4 pt-2 flex gap-4 overflow-x-auto overflow-y-hidden custom-scrollbar">
+    
+    <!-- LEFT PANEL (Optional / Collapsible): Bossa Nova Simulation -->
+    <aside id="bossaNovaPanel" class="w-72 xl:w-80 bg-white rounded-2xl border-2 border-sky-300 shadow-lg shadow-sky-950/10 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden">
+      
+      <!-- Bossa Nova Header -->
+      <div class="p-3.5 bg-slate-800 text-white rounded-t-2xl flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded bg-sky-500 flex items-center justify-center font-bold text-xs">BN</div>
+          <div>
+            <div class="font-bold text-xs">בוסה נובה - מערכת ליבה</div>
+            <div class="text-[10px] text-slate-300">הפניות פעילות במערכת (מקור)</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-[10px] bg-slate-700 px-2 py-0.5 rounded text-slate-300" id="bnCountBadge">8 הפניות</span>
+          <button onclick="toggleBossaNovaPanel()" title="הסתר מסך בוסה נובה" class="text-slate-400 hover:text-white p-1 rounded-md transition">
+            <i data-lucide="chevrons-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bossa Nova Navigation Tree / Info -->
+      <div class="p-3 bg-slate-50 border-b border-slate-200 text-[11px] text-slate-600 space-y-1">
+        <div class="flex justify-between">
+          <span class="text-slate-400">סטטוס כרטיס:</span>
+          <span class="font-semibold text-emerald-700">נוכח בעמדה (תור 42)</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">חיוב / תשלום:</span>
+          <span class="font-semibold text-slate-700">פטור מאגרה</span>
+        </div>
+        <div class="text-[10px] text-slate-400 pt-1">
+          * כאן מוצגת הרשימה הגולמית כפי שנראית בבוסה נובה – ללא סינון וקידוד צבעים.
+        </div>
+      </div>
+
+      <!-- Bossa Nova Raw Referrals List -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar" id="bnReferralsList">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="p-3 bg-slate-50 border-t border-slate-200 text-[11px] text-slate-500 text-center">
+        הסנכרון לסייען מתבצע אוטומטית בזמן אמת
+      </div>
+    </aside>
+
+    <!-- CENTER PANEL: The AI Assistant Smart Table (Layer 1 & 2) -->
+    <section id="aiCenterSection" class="flex-1 bg-white rounded-2xl border-2 border-sky-300 shadow-lg shadow-sky-950/10 flex flex-col min-w-[580px] lg:min-w-[640px] xl:min-w-[700px] transition-all duration-300 overflow-hidden">
+      
+      <!-- Table Header Bar -->
+      <div class="p-3.5 md:p-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h2 class="font-extrabold text-base md:text-lg text-slate-900 flex items-center gap-1.5 whitespace-nowrap">
+              <span class="text-maccabi-blue">מעבדה AI</span>
+              <span>&bull;</span>
+              <span>סיכום והצלבת הנחיות לבדיקות</span>
+            </h2>
+            <span class="text-xs bg-sky-50 text-maccabi-primary border border-sky-200 px-2.5 py-0.5 rounded-full font-bold whitespace-nowrap" id="selectedCountBadge">
+              0 בדיקות סומנו לביצוע
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">
+            הצלבה יזומה של תנאי הכנה, סתירות, דרישות צום וסיכוני פסילה לפני תחילת הדקירה
+          </p>
+        </div>
+
+        <!-- Quick Filter Buttons -->
+        <div class="flex items-center gap-2 text-xs flex-shrink-0">
+          <div class="flex rounded-lg bg-slate-100 p-0.5 border border-slate-200">
+            <button onclick="filterTests('all')" id="filterBtn-all" class="px-3 py-1 rounded-md font-bold bg-white text-maccabi-blue shadow-xs">הכל</button>
+            <button onclick="filterTests('today')" id="filterBtn-today" class="px-3 py-1 rounded-md font-semibold text-slate-600 hover:text-slate-900">לביצוע היום</button>
+            <button onclick="filterTests('alerts')" id="filterBtn-alerts" class="px-3 py-1 rounded-md font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1">
+              <span>תשומת לב</span>
+              <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+            </button>
+          </div>
+          <button onclick="selectAllValidForToday()" class="px-3 py-1.5 text-xs font-semibold text-maccabi-primary bg-sky-50 hover:bg-sky-100 rounded-lg transition border border-sky-200 whitespace-nowrap">
+            בחר תקינות להיום
+          </button>
+        </div>
+      </div>
+
+      <!-- CRITICAL SMART ALERTS (Layer 2: Attention) -->
+      <div id="smartAlertsBanner" class="p-3 bg-amber-50 border-b border-amber-200 text-amber-900 text-xs flex items-start gap-2.5">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+        <div class="flex-1 space-y-1" id="smartAlertsList">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- INTERACTIVE PRE-TEST QUESTIONNAIRE (Interactive Attention Verifications) -->
+      <div id="patientVerificationBar" class="p-3 bg-sky-50/70 border-b border-sky-100 text-xs flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-maccabi-blue flex items-center gap-1">
+            <i data-lucide="clipboard-check" class="w-4 h-4 text-maccabi-primary"></i>
+            בירור מהיר עם המטופל:
+          </span>
+          <div class="flex flex-wrap items-center gap-2" id="verificationCheckboxes">
+            <!-- Populated per patient -->
+          </div>
+        </div>
+        <div class="text-[11px] text-slate-500 font-medium">
+          עדכון תשובות משנה מיידית את המלצת הביצוע
+        </div>
+      </div>
+
+      <!-- GCT 50g DEDICATED PREGNANCY TIMING BANNER (Interactive for Patient 4) -->
+      <div id="gctTimerBanner" class="p-3 bg-gradient-to-r from-sky-100/90 via-sky-50 to-indigo-50/70 border-b border-sky-200 text-xs hidden items-center justify-between gap-3 transition-all">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-maccabi-navy text-white flex items-center justify-center font-bold shadow-xs flex-shrink-0">
+            <i data-lucide="timer" class="w-5 h-5 text-sky-300"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-extrabold text-sm text-maccabi-navy">טיימר שהייה להעמסת סוכר (GCT 50g) - סקר סוכרת הריון</span>
+              <span class="bg-amber-100 text-amber-900 border border-amber-300 font-bold px-2 py-0.5 rounded-full text-[10px]" id="gctStatusBadge">המתנה לתחילת שתייה</span>
+            </div>
+            <div class="text-[11px] text-slate-600 mt-0.5">
+              חובה לדקור בדיוק כעבור 60 דקות מתום שתיית 50 גרם גלוקוז. מנוחה בלבד, ללא אכילה או עישון.
+            </div>
+            <!-- Progress bar -->
+            <div class="w-full bg-slate-200 rounded-full h-1.5 mt-1.5 overflow-hidden">
+              <div id="gctProgressBar" class="bg-gradient-to-r from-maccabi-cyan to-maccabi-blue h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <!-- Digital Clock Display -->
+          <div class="bg-white px-3 py-1.5 rounded-xl border border-sky-200 shadow-2xs text-center min-w-[95px]">
+            <div class="text-[10px] text-slate-400 font-bold">זמן נותר לדקירה</div>
+            <div class="text-base font-black font-mono text-maccabi-navy tracking-wider" id="gctTimerValue">60:00</div>
+          </div>
+
+          <!-- Controls -->
+          <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+            <button onclick="toggleGctTimer()" id="gctStartBtn" class="px-3 py-1.5 bg-maccabi-blue hover:bg-maccabi-dark text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-2xs transition">
+              <i data-lucide="play" id="gctStartBtnIcon" class="w-3.5 h-3.5"></i>
+              <span id="gctStartBtnText">התחל שתייה (60 דק')</span>
+            </button>
+            <button onclick="fastForwardGctTimer()" title="סימולציה: קפוץ ל-5 שניות לסיום ובדוק התרעה" class="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-2xs transition">
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+              <span>סימולציה (5 שניות)</span>
+            </button>
+            <button onclick="playTimerAlarmSound()" title="בדוק צליל התרעה קולית" class="px-2.5 py-1.5 bg-white hover:bg-sky-50 text-sky-800 border border-sky-300 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-2xs transition">
+              <i data-lucide="volume-2" class="w-3.5 h-3.5 text-maccabi-primary"></i>
+              <span>בדוק צליל 🔔</span>
+            </button>
+            <button onclick="resetGctTimer()" title="אפס טיימר" class="p-1.5 bg-white hover:bg-slate-100 text-slate-500 border border-slate-200 rounded-xl transition">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN TESTS TABLE (Layer 1: Orientation + Status) -->
+      <div class="flex-1 overflow-x-auto overflow-y-auto custom-scrollbar">
+        <table class="w-full min-w-[580px] text-right border-collapse text-xs">
+          <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-slate-600 font-bold">
+            <tr>
+              <th class="p-3 w-12 text-center">
+                <input type="checkbox" id="masterCheckbox" onchange="toggleAllCheckboxes(this.checked)" class="w-4 h-4 rounded border-slate-300 text-maccabi-blue focus:ring-maccabi-primary cursor-pointer">
+              </th>
+              <th class="p-3 w-48">בדיקה וקוד</th>
+              <th class="p-3 w-32">סוג דגימה</th>
+              <th class="p-3 w-36">סטטוס מוכנות</th>
+              <th class="p-3">הנחיות ותנאי הכנה (AI)</th>
+              <th class="p-3 w-32">מבחנה / כלי</th>
+              <th class="p-3 w-28 text-center">הנחיות לפעולה</th>
+            </tr>
+          </thead>
+          <tbody id="testsTableBody" class="divide-y divide-slate-200">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FOOTER SUMMARY & WORKFLOW LAUNCHER (Layer 3 trigger) -->
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-4 text-xs">
+          <div class="flex items-center gap-1 text-slate-600">
+            <span class="font-bold text-slate-800" id="summaryTotalCount">8</span>
+            <span>בדיקות בסה"כ</span>
+          </div>
+          <span>&bull;</span>
+          <div class="flex items-center gap-1 text-emerald-700 font-bold">
+            <span id="summaryReadyCount">5</span>
+            <span>מוכנות לביצוע היום</span>
+          </div>
+          <span>&bull;</span>
+          <div class="flex items-center gap-1 text-amber-700 font-bold">
+            <span id="summaryAttentionCount">2</span>
+            <span>דורשות בירור/צום</span>
+          </div>
+          <span>&bull;</span>
+          <div class="flex items-center gap-1 text-blue-700 font-bold">
+            <span id="summaryFutureCount">1</span>
+            <span>נשמר למועד עתידי / מסירה הביתה</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="openPrintSummaryModal()" class="px-3 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
+            <i data-lucide="printer" class="w-4 h-4 text-slate-500"></i>
+            <span>הדפס דף הנחיות למטופל</span>
+          </button>
+          <button onclick="activateFullActionProtocol()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-maccabi-blue to-maccabi-primary hover:from-maccabi-dark hover:to-maccabi-blue text-white text-xs font-bold flex items-center gap-2 shadow-sm transition">
+            <i data-lucide="flask-conical" class="w-4 h-4 text-sky-200"></i>
+            <span>הפק תוכנית לקיחה מרוכזת (Order of Draw)</span>
+            <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]" id="executeBtnCount">0</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT PANEL: Action & Tube Protocol Drawer (Layer 3: Action) -->
+    <aside id="actionDrawer" class="w-80 xl:w-92 bg-white rounded-2xl border-2 border-sky-300 shadow-lg shadow-sky-950/10 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden">
+      
+      <!-- Drawer Header -->
+      <div class="p-3.5 bg-gradient-to-l from-maccabi-blue to-maccabi-dark text-white rounded-t-2xl flex items-center justify-between">
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-7 h-7 rounded-lg bg-sky-400/20 border border-sky-300/30 flex items-center justify-center text-sky-300 flex-shrink-0">
+            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+          </div>
+          <div class="truncate">
+            <h3 class="font-extrabold text-sm truncate" id="actionDrawerTitle">פרוטוקול עבודה ממוקד</h3>
+            <div class="text-[10px] text-sky-200 truncate" id="actionDrawerSubtitle">הנחיות לביצוע: לפני, בזמן ולאחר הלקיחה</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1">
+          <button onclick="resetDrawerToOverview()" title="איפוס לתצוגה כוללת" class="text-xs text-sky-200 hover:text-white bg-white/10 hover:bg-white/20 p-1.5 rounded-lg transition">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="toggleActionDrawer()" title="הסתר/הצג פאנל פעולה" class="text-xs text-sky-200 hover:text-white bg-white/10 hover:bg-white/20 p-1.5 rounded-lg transition">
+            <i data-lucide="chevrons-left" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Drawer Tabs: Overview vs Tubes vs In-depth single test -->
+      <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-600">
+        <button onclick="switchDrawerTab('protocol')" id="tabBtn-protocol" class="flex-1 py-2.5 border-b-2 border-maccabi-blue text-maccabi-blue bg-white text-center">
+          סדר לקיחה ומבחנות
+        </button>
+        <button onclick="switchDrawerTab('details')" id="tabBtn-details" class="flex-1 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 text-center">
+          הנחיות מפורטות
+        </button>
+        <button onclick="switchDrawerTab('postHandling')" id="tabBtn-postHandling" class="flex-1 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 text-center">
+          טיפול בדגימה
+        </button>
+      </div>
+
+      <!-- Drawer Content -->
+      <div class="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4" id="drawerContentArea">
+        <!-- Rendered dynamically by JS -->
+      </div>
+
+      <!-- Drawer Footer with Step Confirmation -->
+      <div class="p-3 bg-slate-50 border-t border-slate-200">
+        <div class="flex items-center justify-between text-xs mb-2">
+          <span class="text-slate-500">סטטוס תהליך:</span>
+          <span class="font-bold text-maccabi-primary" id="drawerStepStatus">המתנה לבחירת בדיקות</span>
+        </div>
+        <button onclick="markAllCompletedSuccessfully()" id="completeWorkflowBtn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition disabled:opacity-50" disabled>
+          <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+          <span>סיום לקיחה ואישור הדפסת מדבקות ברקוד</span>
+        </button>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- MODAL: ALFON AI ASSISTANT CHAT -->
+  <div id="alfonModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full flex flex-col overflow-hidden border border-slate-200 max-h-[85vh]">
+      <!-- Header -->
+      <div class="p-4 bg-gradient-to-r from-maccabi-blue to-maccabi-dark text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-sky-400/20 border border-sky-300/30 flex items-center justify-center text-sky-200">
+            <i data-lucide="bot" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-base">אלפון AI - סייען בדיקות מעבדה</h3>
+            <p class="text-xs text-sky-200">תשובות מיידיות מתוך אלפון הבדיקות, נוהלי מכבי ו-CLSI</p>
+          </div>
+        </div>
+        <button onclick="closeAlfonChatModal()" class="text-white/80 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Quick Suggested Questions -->
+      <div class="p-3 bg-slate-50 border-b border-slate-200 text-xs">
+        <span class="text-[11px] font-bold text-slate-500 block mb-1.5">שאלות נפוצות לבירור מהיר:</span>
+        <div class="flex flex-wrap gap-1.5" id="alfonQuickQuestions">
+          <button onclick="askAlfon('האם אפשר לבצע תבחין נשיפה להליקובקטר יחד עם בדיקת דם בצום?')" class="bg-white border border-slate-200 hover:border-maccabi-primary px-2.5 py-1 rounded-lg text-slate-700 hover:text-maccabi-blue transition text-[11px]">
+            נשיפה להליקובקטר + בדיקת דם?
+          </button>
+          <button onclick="askAlfon('מה הטיפול הנדרש במבחנת ACTH לאחר הלקיחה?')" class="bg-white border border-slate-200 hover:border-maccabi-primary px-2.5 py-1 rounded-lg text-slate-700 hover:text-maccabi-blue transition text-[11px]">
+            טיפול במבחנת ACTH?
+          </button>
+          <button onclick="askAlfon('מה סדר לקיחת המבחנות לפי תקן CLSI כשנלקחת גם מבחנת קרישה כחולה?')" class="bg-white border border-slate-200 hover:border-maccabi-primary px-2.5 py-1 rounded-lg text-slate-700 hover:text-maccabi-blue transition text-[11px]">
+            סדר לקיחת מבחנת קרישה כחולה?
+          </button>
+          <button onclick="askAlfon('האם שתיית כוס מים בבוקר פוסלת בדיקת גלוקוז או שומנים?')" class="bg-white border border-slate-200 hover:border-maccabi-primary px-2.5 py-1 rounded-lg text-slate-700 hover:text-maccabi-blue transition text-[11px]">
+            שתיית מים בצום?
+          </button>
+        </div>
+      </div>
+
+      <!-- Chat Messages Area -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar text-xs min-h-[260px] max-h-[340px] bg-slate-50" id="alfonChatMessages">
+        <div class="flex gap-2.5 items-start">
+          <div class="w-7 h-7 rounded-full bg-maccabi-blue text-white flex items-center justify-center font-bold text-xs flex-shrink-0">AI</div>
+          <div class="bg-white p-3 rounded-2xl rounded-tr-none border border-slate-200 text-slate-700 shadow-xs max-w-[85%] leading-relaxed">
+            שלום! אני סייען האלפון החכם למעבדת מכבי. אפשר לשאול אותי כל שאלה על תנאי בדיקה, מבחנות, סדר לקיחה, תרופות סותרות או טיפול מיוחד בדגימה (הקפאה/סרכוז/הגנה מאור). מה תרצי לברר?
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Bar -->
+      <div class="p-3 bg-white border-t border-slate-200 flex gap-2">
+        <input type="text" id="alfonInputText" onkeydown="if(event.key==='Enter') sendAlfonUserMessage()" placeholder="שאלי שאלה על בדיקה, מבחנה, נוהל צום או סרכוז..." class="flex-1 px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-maccabi-primary focus:ring-1 focus:ring-maccabi-primary">
+        <button onclick="sendAlfonUserMessage()" class="bg-maccabi-blue hover:bg-maccabi-dark text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
+          <span>שלח</span>
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PRINT / PATIENT GUIDANCE SUMMARY -->
+  <div id="printSummaryModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full flex flex-col overflow-hidden border border-slate-200 max-h-[90vh]">
+      <div class="p-4 bg-maccabi-blue text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="printer" class="w-5 h-5 text-sky-200"></i>
+          <h3 class="font-extrabold text-base">דף סיכום והנחיות למטופל - מכבי שירותי בריאות</h3>
+        </div>
+        <button onclick="closePrintSummaryModal()" class="text-white/80 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4 text-xs leading-relaxed custom-scrollbar" id="printSummaryContent">
+        <!-- Generated by JS -->
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+        <span class="text-[11px] text-slate-500">ניתן להדפסה ישירה או שליחה במסרון/אפליקציית מכבי</span>
+        <div class="flex gap-2">
+          <button onclick="closePrintSummaryModal()" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 hover:bg-slate-100 font-semibold text-xs">סגור</button>
+          <button onclick="window.print()" class="px-5 py-2 bg-maccabi-blue hover:bg-maccabi-dark text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>הדפס עכשיו</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DEDICATED ORDER OF DRAW WORKFLOW PLAN (תוכנית עבודה מרוכזת לעמדת הלקיחה) -->
+  <div id="protocolExecutionModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full flex flex-col overflow-hidden border border-slate-200 max-h-[90vh]">
+      <!-- Header -->
+      <div class="p-4 bg-gradient-to-r from-maccabi-blue to-maccabi-primary text-white flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white font-bold">
+            <i data-lucide="flask-conical" class="w-6 h-6 text-sky-200"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-extrabold text-base">תוכנית עבודה מרוכזת לעמדת הלקיחה (Order of Draw)</h3>
+              <span class="text-[11px] bg-white/20 text-white font-bold px-2 py-0.5 rounded-full" id="modalSelectedCountBadge">4 מבחנות</span>
+            </div>
+            <p class="text-xs text-sky-100" id="modalPatientSubtitle">מטופל: דני לוי | סדר לקיחה לפי תקן CLSI H3-A6</p>
+          </div>
+        </div>
+        <button onclick="closeProtocolExecutionModal()" class="text-white/80 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="flex-1 overflow-y-auto p-5 custom-scrollbar space-y-4 text-xs" id="protocolModalContent">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap justify-between items-center gap-2">
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+          <i data-lucide="shield-alert" class="w-4 h-4 text-amber-500"></i>
+          <span>הקפדה על סדר הלקיחה מונעת זיהום צולב של נוגדי קרישה ופסילת דגימות</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="closeProtocolExecutionModal()" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-xs transition">
+            סגור
+          </button>
+          <button onclick="window.print()" class="px-4 py-2 border border-sky-300 bg-sky-50 text-maccabi-blue hover:bg-sky-100 rounded-xl font-bold text-xs flex items-center gap-1.5 transition">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>הדפס כרטיס לעמדה</span>
+          </button>
+          <button onclick="confirmCollectionFromModal()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            <span>אישור סיום לקיחה והדפסת ברקודים</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GCT 50g TIME EXPIRED ALARM (התרעת תום שעה להעמסת סוכר) -->
+  <div id="gctAlarmModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full flex flex-col overflow-hidden border-2 border-red-500 animate-bounce-short">
+      <div class="p-5 bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-white text-2xl shadow-inner pulse-dot">
+            ⏰
+          </div>
+          <div>
+            <h3 class="font-black text-lg">תשומת לב קדם-אנליטית: הגיע זמן הדקירה!</h3>
+            <p class="text-xs text-rose-100">תמו בדיוק 60 דקות משתיית תמיסת הסוכר GCT 50g</p>
+          </div>
+        </div>
+        <button onclick="closeGctAlarmModal()" class="text-white/80 hover:text-white p-1.5 rounded-lg bg-white/10">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs leading-relaxed text-slate-800">
+        <div class="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-xl bg-red-600 text-white flex items-center justify-center flex-shrink-0 font-bold">
+            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="font-extrabold text-sm text-red-950">לקרוא לנועה גולדשטיין לעמדה מיידית!</div>
+            <div class="text-red-900 text-xs mt-1">
+              שאיבת הדם לבדיקת סוכר (מבחנת פלואוריד אפורה) חייבת להתבצע בדיוק ב-60 דקות. כל איחור או הקדמה עלול לעוות את אבחון סוכרת ההריון.
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-1.5 text-slate-700">
+          <div class="font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="syringe" class="w-4 h-4 text-maccabi-primary"></i>
+            <span>פעולות נדרשות בעמדה:</span>
+          </div>
+          <div>1. בדיקת זיהוי מטופלת (נועה גולדשטיין, ת.ז 456789012).</div>
+          <div>2. שאיבת מבחנת פלואוריד אפורה (גלוקוז לאחר העמסה) והיפוך 8 פעמים.</div>
+          <div>3. שאיבת יתר המבחנות התקינות (קרישה, סרולוגיה, שתן).</div>
+        </div>
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2">
+        <button onclick="playTimerAlarmSound()" class="px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl font-bold text-xs flex items-center gap-1.5 transition shadow-2xs">
+          <i data-lucide="bell-ring" class="w-4 h-4 text-amber-700"></i>
+          <span>השמע צליל התרעה שוב 🔊</span>
+        </button>
+        <button onclick="closeGctAlarmModal()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-extrabold text-xs flex items-center gap-2 shadow-sm transition">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>הבנתי, מכניסה לעמדה עכשיו</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC & DATABASE -->
+  <script>
+    // -------------------------------------------------------------
+    // DATABASE: 5 DIVERSE PATIENT CLINICAL SCENARIOS
+    // -------------------------------------------------------------
+    const PATIENTS = [
+      {
+        id: "p1",
+        name: "דני לוי",
+        tz: "123456789",
+        age: 39,
+        birthDate: "12/03/1985",
+        gender: "זכר",
+        clinic: "מרכז רפואי בלפור תל אביב",
+        mainDoctor: "ד\"ר ישראלי רון (רופא משפחה)",
+        scenarioTitle: "מקרה 1: הפניות מעורבות (דם, שתן, נשיפה, צואה)",
+        clinicalDilemma: "עישון הבוקר פוסל תבחין נשיפה להליקובקטר (False Positive). המערכת מפצלת ומאשרת דם ושתן להיום, פוסלת נשיפה ומנחה על מסירת ערכת צואה לבית.",
+        ramonPreventive: "אין בדיקות מונעות פתוחות לביקור זה",
+        questions: [
+          { id: "fasting8", text: "האם בצום מלא לפחות 8-12 שעות (שתיית מים בלבד)?", defaultAnswer: true },
+          { id: "breathFasting", text: "לתבחין נשיפה: לא עישן, לא צחצח שיניים ולא אכל מסטיק הבוקר?", defaultAnswer: false, reason: "עישן סיגריה לפני חצי שעה" },
+          { id: "antibiotics", text: "האם נטל אנטיביוטיקה ב-4 השבועות האחרונים?", defaultAnswer: false }
+        ],
+        tests: [
+          {
+            code: "0001",
+            name: "ספירת דם - CBC",
+            specimenType: "blood", // red
+            specimenName: "דם",
+            tube: "סגולה (EDTA)",
+            tubeColor: "#9333ea",
+            tubeCap: "#7e22ce",
+            tubeCount: 1,
+            orderRank: 4,
+            fastingRequired: false,
+            initialStatus: "ready", // ready | warning | deferred | attention
+            statusText: "תקין לביצוע מיידי",
+            notes: "אין צורך בצום. מבחנת EDTA 3ml.",
+            beforeInstructions: "זיהוי מטופל ב-2 מזהים.",
+            duringInstructions: "לקיחה בסדר הנכון (אחרי סרום/כימיה). היפוך עדין 8 פעמים.",
+            afterInstructions: "שמירה בטמפרטורת החדר. אין לסרכז.",
+            dangerAlert: null,
+            canDoToday: true
+          },
+          {
+            code: "0102",
+            name: "גלוקוז בצום (Glucose)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "אפורה (פלואוריד)",
+            tubeColor: "#64748b",
+            tubeCap: "#475569",
+            tubeCount: 1,
+            orderRank: 5,
+            fastingRequired: true,
+            fastingHours: 8,
+            initialStatus: "attention",
+            statusText: "מחייב צום 8-12 שעות",
+            notes: "צום 8-12 שעות (מים בלבד). בדיקה רגישה להכנה.",
+            beforeInstructions: "אימות צום עם המטופל. שתיית מים מותרת.",
+            duringInstructions: "מבחנת פלואוריד נלקחת אחרונה בסדר הלקיחה. היפוך עדין 5-8 פעמים.",
+            afterInstructions: "שמירה בטמפרטורת חדר. שליחה למעבדה באותו יום.",
+            dangerAlert: "שיעור פסילות גבוה אם המטופל שתה קפה ממותק או לא בצום.",
+            canDoToday: true
+          },
+          {
+            code: "0145",
+            name: "פרופיל שומנים מלא (Lipids)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "צהובה (ג'ל סרום SST)",
+            tubeColor: "#eab308",
+            tubeCap: "#ca8a04",
+            tubeCount: 1,
+            orderRank: 3,
+            fastingRequired: true,
+            fastingHours: 12,
+            initialStatus: "attention",
+            statusText: "מחייב צום 12 שעות",
+            notes: "צום קפדני של 12 שעות כולל שומנים וסוכרים.",
+            beforeInstructions: "לוודא שלא נצרך מזון שומני או אלכוהול ערב קודם.",
+            duringInstructions: "מבחנת ג'ל עם מזרז קרישה. היפוך עדין 5 פעמים.",
+            afterInstructions: "המתנה לקרישה מלאה 30 דקות לפני סרכוז ב-2000g.",
+            dangerAlert: null,
+            canDoToday: true
+          },
+          {
+            code: "0300",
+            name: "בדיקת שתן כללית (Urinalysis)",
+            specimenType: "urine", // yellow
+            specimenName: "שתן",
+            tube: "כוסית שתן צהובה",
+            tubeColor: "#eab308",
+            tubeCap: "#ca8a04",
+            tubeCount: 1,
+            orderRank: 99,
+            fastingRequired: false,
+            initialStatus: "ready",
+            statusText: "תקין - דגימה במקום",
+            notes: "איסוף אמצע זרם (Midstream) לאחר שטיפה.",
+            beforeInstructions: "מתן כוסית ייעודית והסבר קצר על שטיפה ואמצע זרם.",
+            duringInstructions: "טבילת סטיק במידת הצורך או העברה למבחנת שתן ואקום.",
+            afterInstructions: "בדיקה תוך שעתיים או שמירה בקירור 4°C.",
+            dangerAlert: null,
+            canDoToday: true
+          },
+          {
+            code: "0750",
+            name: "תרבית צואה (Stool Culture)",
+            specimenType: "stool", // brown
+            specimenName: "צואה",
+            tube: "כלי איסוף עם נוזל שימור (Cary-Blair)",
+            tubeColor: "#854d0e",
+            tubeCap: "#713f12",
+            tubeCount: 1,
+            orderRank: 99,
+            fastingRequired: false,
+            initialStatus: "deferred",
+            statusText: "מסירה לביצוע בבית",
+            notes: "איסוף בבית והבאה למעבדה תוך 24 שעות.",
+            beforeInstructions: "הדרכת מטופל: אין לערבב עם שתן או מי אסלה.",
+            duringInstructions: "איסוף באמצעות הכפית המחוברת לפקק עד לקו הסימון.",
+            afterInstructions: "החזרה למרפאה ביום ביצוע הדגימה.",
+            dangerAlert: null,
+            canDoToday: false // leave for home
+          },
+          {
+            code: "0910",
+            name: "הליקובקטר פילורי - תבחין נשיפה (C13 Urea Breath)",
+            specimenType: "breath", // blue
+            specimenName: "נשיפה",
+            tube: "ערכת שקיות/מבחנות נשיפה C13",
+            tubeColor: "#2563eb",
+            tubeCap: "#1d4ed8",
+            tubeCount: 2,
+            orderRank: 99,
+            fastingRequired: true,
+            initialStatus: "warning",
+            statusText: "דורש בירור קפדני (עישון/צחצוח)",
+            notes: "צום 6 שעות, איסור עישון/מסטיק, ללא אנטיביוטיקה 4 שבועות.",
+            beforeInstructions: "וידוא שלא צחצח שיניים או עישן בבוקר הבדיקה, וללא תרופות PPI שבועיים.",
+            duringInstructions: "נשיפה ראשונה בסיסית -> שתיית תמיסת אוריאה C13 -> המתנה 30 דקות -> נשיפה שנייה.",
+            afterInstructions: "אטימת מבחנות הנשיפה ושליחה ייעודית למעבדת נשיפה.",
+            dangerAlert: "אם עישן או צחצח שיניים הבוקר – הבדיקה תיפסל! יש לדחות.",
+            canDoToday: false // flagged due to smoking
+          },
+          {
+            code: "0812",
+            name: "משטח גרון לתרבית (Throat Culture)",
+            specimenType: "bacteriology", // green
+            specimenName: "בקטריולוגיה",
+            tube: "מטוש עם מצע ג'ל (Amies Transport)",
+            tubeColor: "#16a34a",
+            tubeCap: "#15803d",
+            tubeCount: 1,
+            orderRank: 99,
+            fastingRequired: false,
+            initialStatus: "ready",
+            statusText: "תקין לביצוע",
+            notes: "לפני צחצוח/גרגור או שעה לאחר שתייה.",
+            beforeInstructions: "הושבת המטופל באור טוב, שימוש במוריד לשון.",
+            duringInstructions: "דיגום השקדים והלוע האחורי ללא מגע בלשון או בלחי.",
+            afterInstructions: "שמירה בטמפרטורת חדר ושליחה למעבדה המיקרוביולוגית.",
+            dangerAlert: null,
+            canDoToday: true
+          },
+          {
+            code: "0205",
+            name: "ויטמין B12 + חומצה פולית",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "צהובה (ג'ל סרום SST) - משותפת עם שומנים",
+            tubeColor: "#eab308",
+            tubeCap: "#ca8a04",
+            tubeCount: 0, // combined in SST
+            orderRank: 3,
+            fastingRequired: false,
+            initialStatus: "ready",
+            statusText: "משותף למבחנת כימיה",
+            notes: "מבוצע מאותה מבחנת ג'ל של פרופיל השומנים. אין צורך בדקירה נוספת.",
+            beforeInstructions: "בירור נטילת תוספי תזונה במינון גבוה.",
+            duringInstructions: "נלקח יחד עם מבחנת הסרום הצהובה.",
+            afterInstructions: "הגנה מאור ישיר ממושך.",
+            dangerAlert: null,
+            canDoToday: true
+          }
+        ]
+      },
+      {
+        id: "p2",
+        name: "מרים כהן",
+        tz: "234567890",
+        age: 68,
+        birthDate: "04/11/1956",
+        gender: "נקבה",
+        clinic: "מרכז רפואי הדר יוסף תל אביב",
+        mainDoctor: "פרופ' אנדוקרינולוג כהן",
+        scenarioTitle: "מקרה 2: בדיקות הורמונליות מורכבות (ACTH בקירור, קורטיזול, אור)",
+        clinicalDilemma: "הורמון ACTH רגיש ביותר לפירוק ומחייב מבחנה בקרח וסרכוז תוך 15 דק'; קורטיזול מחייב ערות של שעתיים; בילירובין מוגן מאור (נייר כסף); וברמון מאותרת המלצה לסקר דם סמוי.",
+        ramonPreventive: "בדיקת דם סמוי בצואה מעל גיל 50 - מומלץ למסור ערכה",
+        questions: [
+          { id: "wakeHours", text: "האם ערה לפחות שעתיים לפני הבדיקה (קורטיזול/ACTH)?", defaultAnswer: true },
+          { id: "iceReady", text: "האם הוכן מראש אמבט קרח למבחנת ACTH?", defaultAnswer: true }
+        ],
+        tests: [
+          {
+            code: "0420",
+            name: "הורמון אדרנוקורטיקוטרופי - ACTH",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "סגולה (EDTA) מצוננת בקרח מראש",
+            tubeColor: "#9333ea",
+            tubeCap: "#7e22ce",
+            tubeCount: 1,
+            orderRank: 4,
+            fastingRequired: true,
+            fastingHours: 8,
+            initialStatus: "attention",
+            statusText: "רגיש במיוחד! דורש מבחנה קרה",
+            notes: "מבחנה מקוררת בקרח מראש. סרכוז והקפאה מיידיים בתוך 15 דקות!",
+            beforeInstructions: "קירור מבחנת EDTA בקרח לפני הלקיחה. בדיקה בין 08:00-09:00 בבוקר בלבד.",
+            duringInstructions: "הקפדה על לקיחה מהירה, היפוך עדין 8 פעמים והשבה מיידית לאמבט קרח.",
+            afterInstructions: "סרכוז בצנטריפוגה מקוררת תוך 15 דקות, הפרדת פלזמה והקפאה ב-20°C- מיידית!",
+            dangerAlert: "בדיקה בעלת שיעור פסילה מהגבוהים במעבדה! השהייה של 20 דקות ללא קירור תפרק את ההורמון.",
+            canDoToday: true
+          },
+          {
+            code: "0425",
+            name: "קורטיזול בוקר (Cortisol 8AM)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "צהובה (ג'ל סרום SST)",
+            tubeColor: "#eab308",
+            tubeCap: "#ca8a04",
+            tubeCount: 1,
+            orderRank: 3,
+            fastingRequired: false,
+            initialStatus: "ready",
+            statusText: "לקיחה עד 09:00 בבוקר",
+            notes: "דורש ערות של שעתיים ומנוחה של 15 דקות בישיבה לפני הלקיחה.",
+            beforeInstructions: "הושבת המטופלת למנוחה שקטה של 15 דקות.",
+            duringInstructions: "הימנעות מלחץ או סטרס בזמן הדקירה.",
+            afterInstructions: "סרכוז והפרדה שגרתיים.",
+            dangerAlert: null,
+            canDoToday: true
+          },
+          {
+            code: "0115",
+            name: "בילירובין ישיר וכללי (Bilirubin)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "צהובה (ג'ל סרום SST) - מוגנת מאור",
+            tubeColor: "#eab308",
+            tubeCap: "#ca8a04",
+            tubeCount: 0,
+            orderRank: 3,
+            fastingRequired: false,
+            initialStatus: "attention",
+            statusText: "רגיש לאור (Light Sensitive)",
+            notes: "בילירובין מתפרק באור! יש לעטוף את המבחנה בנייר אלומיניום/שקית כהה.",
+            beforeInstructions: "הכנת מעטפת אלומיניום/אטומה לאור ליד עמדת הלקיחה.",
+            duringInstructions: "איסוף רגיל בסדר המבחנות.",
+            afterInstructions: "עטיפה מיידית של המבחנה למניעת חשיפה לאור פלואורסצנט או שמש.",
+            dangerAlert: "חשיפה לאור גורמת לפירוק של עד 50% מהבילירובין בתוך שעה.",
+            canDoToday: true
+          },
+          {
+            code: "0050",
+            name: "כימיה מורחבת (אלקטרוליטים, תפקודי כליות וכבד)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "צהובה (ג'ל סרום SST)",
+            tubeColor: "#eab308",
+            tubeCap: "#ca8a04",
+            tubeCount: 1,
+            orderRank: 3,
+            fastingRequired: false,
+            initialStatus: "ready",
+            statusText: "תקין לביצוע",
+            notes: "מבחנת ג'ל כימיה.",
+            beforeInstructions: "אין הנחיות חריגות.",
+            duringInstructions: "5 היפוכים עדינים.",
+            afterInstructions: "סרכוז לאחר 30 דק.",
+            dangerAlert: null,
+            canDoToday: true
+          }
+        ]
+      },
+      {
+        id: "p3",
+        name: "יוסי אברהם",
+        tz: "345678901",
+        age: 52,
+        birthDate: "20/07/1972",
+        gender: "זכר",
+        clinic: "מרכז רפואי רעננה",
+        mainDoctor: "ד\"ר שטרן (קרדיולוגיה)",
+        scenarioTitle: "מקרה 3: בירור צום שגוי ופיצול הפניות (הצלת בדיקה עתידית)",
+        clinicalDilemma: "המטופל שתה קפה ממותק: דקירת גלוקוז כעת תגרום לאבחון שגוי של סוכרת. המערכת שומרת את ההפניות הדורשות צום למועד עתידי בבוסה נובה, ומאשרת מיידית HbA1c וספירת דם.",
+        ramonPreventive: "בדיקת לחץ דם שנתית מומלצת",
+        questions: [
+          { id: "didFast", text: "האם בצום מלא? (דיווח: שתה קפה עם סוכר לפני שעה)", defaultAnswer: false, reason: "המטופל מדווח ששתה קפה הפוך עם סוכר ב-07:30" }
+        ],
+        tests: [
+          {
+            code: "0102",
+            name: "גלוקוז בצום (Fasting Glucose)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "אפורה (פלואוריד)",
+            tubeColor: "#64748b",
+            tubeCap: "#475569",
+            tubeCount: 1,
+            orderRank: 5,
+            fastingRequired: true,
+            fastingHours: 8,
+            initialStatus: "warning",
+            statusText: "פסול להיום! שתה קפה ממותק",
+            notes: "אין לבצע היום! דחייה למועד אחר בבוסה נובה מבלי למחוק את ההפניה.",
+            beforeInstructions: "הסבר אדיב למטופל מדוע קפה עם סוכר ייתן תוצאת סוכר שגויה ומסוכנת.",
+            duringInstructions: "לא לבצע היום!",
+            afterInstructions: "שימור ההפניה במערכת למועד הבא.",
+            dangerAlert: "ביצוע הבדיקה ללא צום יביא לאבחון שגוי של סוכרת!",
+            canDoToday: false
+          },
+          {
+            code: "0145",
+            name: "טריגליצרידים וליפידים (Triglycerides)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "צהובה (ג'ל סרום SST)",
+            tubeColor: "#eab308",
+            tubeCap: "#ca8a04",
+            tubeCount: 1,
+            orderRank: 3,
+            fastingRequired: true,
+            fastingHours: 12,
+            initialStatus: "warning",
+            statusText: "פסול להיום! דורש 12 שעות צום",
+            notes: "קפה וחלב משבשים לחלוטין את רמת השומנים והעכירות בסרום.",
+            beforeInstructions: "דחייה למועד אחר.",
+            duringInstructions: "לא לבצע היום!",
+            afterInstructions: "שימור הפניה.",
+            dangerAlert: "רמת טריגליצרידים תקפוץ באופן מלאכותי.",
+            canDoToday: false
+          },
+          {
+            code: "0108",
+            name: "המוגלובין A1C (HbA1c)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "סגולה (EDTA)",
+            tubeColor: "#9333ea",
+            tubeCap: "#7e22ce",
+            tubeCount: 1,
+            orderRank: 4,
+            fastingRequired: false,
+            initialStatus: "ready",
+            statusText: "ניתן לביצוע היום (אינו תלוי צום!)",
+            notes: "משקף 3 חודשים אחרונים – לא מושפע מהקפה שנשתה הבוקר.",
+            beforeInstructions: "הסבר למטופל שבדיקה זו כן מתבצעת כעת.",
+            duringInstructions: "מבחנת סגולה EDTA, היפוך 8 פעמים.",
+            afterInstructions: "טמפרטורת חדר.",
+            dangerAlert: null,
+            canDoToday: true
+          },
+          {
+            code: "0001",
+            name: "ספירת דם (CBC)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "סגולה (EDTA) - משותפת עם HbA1c",
+            tubeColor: "#9333ea",
+            tubeCap: "#7e22ce",
+            tubeCount: 0,
+            orderRank: 4,
+            fastingRequired: false,
+            initialStatus: "ready",
+            statusText: "תקין לביצוע (משותף למבחנה סגולה)",
+            notes: "ניתן לבצע מאותה מבחנת EDTA של HbA1c.",
+            beforeInstructions: "לקיחה שגרתית.",
+            duringInstructions: "היפוך עדין.",
+            afterInstructions: "ללא סרכוז.",
+            dangerAlert: null,
+            canDoToday: true
+          }
+        ]
+      },
+      {
+        id: "p4",
+        name: "נועה גולדשטיין",
+        tz: "456789012",
+        age: 29,
+        birthDate: "15/09/1995",
+        gender: "נקבה (הריון שבוע 24)",
+        clinic: "מרכז בריאות האישה ראשון לציון",
+        mainDoctor: "ד\"ר לוין (נשים ויולדות)",
+        scenarioTitle: "מקרה 4: הריון, סקר סוכר (GCT), סרולוגיה וקרישה (סדר מבחנות)",
+        clinicalDilemma: "הריון שבוע 24: מבחנת קרישה תכלת מחייבת מילוי מדויק 90%-100% בסדר מוקדם; טיימר 60 דקות מנוהל להעמסת סוכר 50 גרם; ואיסוף שתן סטרילי מונע זיהום פלורה נרתיקית.",
+        ramonPreventive: "חיסון שעלת בהריון - סומן להפניה",
+        questions: [
+          { id: "gctTime", text: "האם מוכנה להישאר 60 דקות במרפאה להעמסת סוכר?", defaultAnswer: true }
+        ],
+        tests: [
+          {
+            code: "0020",
+            name: "תפקודי קרישה (PT / INR / PTT)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "תכלת (נתרן ציטראט 3.2%)",
+            tubeColor: "#38bdf8",
+            tubeCap: "#0284c7",
+            tubeCount: 1,
+            orderRank: 2, // Must be taken early!
+            fastingRequired: false,
+            initialStatus: "attention",
+            statusText: "חובה דיגום מדויק עד לקו הסימון!",
+            notes: "מבחנת קרישה חייבת להתמלא במדויק ב-90%-100% מיחס דם/נוגד קרישה. סדר לקיחה ראשון/שני!",
+            beforeInstructions: "אם לוקחים עם פרפרית, חובה להשתמש בצינורית ניקוז מקדימה (Discard Tube).",
+            duringInstructions: "מילוי מדויק עד קו הסימון השחור. היפוך עדין 3-4 פעמים בלבד.",
+            afterInstructions: "סרכוז והפרדה בתוך 4 שעות. אסור להקפיא ללא הפרדה מלאה של פלזמה דלת טסיות.",
+            dangerAlert: "תת-מילוי של המבחנה (מתחת ל-90%) יפסול את התוצאה אוטומטית!",
+            canDoToday: true
+          },
+          {
+            code: "0109",
+            name: "העמסת סוכר 50 גרם - סקר הריון (GCT 50g)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "אפורה (פלואוריד)",
+            tubeColor: "#64748b",
+            tubeCap: "#475569",
+            tubeCount: 1,
+            orderRank: 5,
+            fastingRequired: false,
+            initialStatus: "attention",
+            statusText: "דורש שהייה ומדידת זמן מדויקת (60 דק')",
+            notes: "אין צורך בצום. שתיית 50 גרם גלוקוז, מנוחה שעה ללא אכילה/עישון, ודקירה בדיוק ב-60 דקות.",
+            beforeInstructions: "מתן תמיסת 50 גרם קרה עם לימון, רישום שעת סיום השתייה בטיימר המערכת.",
+            duringInstructions: "הקפדה על דקירה בדיוק 60 דקות מתום השתייה.",
+            afterInstructions: "מבחנת פלואוריד בסדר לקיחה מתאים.",
+            dangerAlert: "הקאה של התמיסה או פעילות גופנית בשעת ההמתנה פוסלת את הבדיקה.",
+            canDoToday: true
+          },
+          {
+            code: "0605",
+            name: "סרולוגיה בהריון (CMV, Toxoplasma, Rubella)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "צהובה (ג'ל סרום SST)",
+            tubeColor: "#eab308",
+            tubeCap: "#ca8a04",
+            tubeCount: 1,
+            orderRank: 3,
+            fastingRequired: false,
+            initialStatus: "ready",
+            statusText: "תקין לביצוע",
+            notes: "מבחנת ג'ל לסרולוגיה.",
+            beforeInstructions: "אימות שבוע הריון.",
+            duringInstructions: "נלקח בסדר מבחנות סרום.",
+            afterInstructions: "סרכוז ושליחה למעבדה מרכזית.",
+            dangerAlert: null,
+            canDoToday: true
+          },
+          {
+            code: "0310",
+            name: "שתן לכללית ותרבית (Urine Routine & Culture)",
+            specimenType: "urine",
+            specimenName: "שתן",
+            tube: "כוסית סטרילית + מבחנת שתן ואקום",
+            tubeColor: "#eab308",
+            tubeCap: "#ca8a04",
+            tubeCount: 1,
+            orderRank: 99,
+            fastingRequired: false,
+            initialStatus: "ready",
+            statusText: "תקין - איסוף סטרילי",
+            notes: "שתן אמצע זרם קפדני (במיוחד בהריון למניעת זיהום פלורה נרתיקית).",
+            beforeInstructions: "הסבר על מגבון ניקוי ואיסוף אמצע זרם.",
+            duringInstructions: "שאיבה למבחנת בוראט לתרבית.",
+            afterInstructions: "קירור אם לא נשלח מיד.",
+            dangerAlert: null,
+            canDoToday: true
+          }
+        ]
+      },
+      {
+        id: "p5",
+        name: "איתי ברקוביץ'",
+        tz: "567890123",
+        age: 12,
+        birthDate: "02/05/2013",
+        gender: "זכר (ילד מלווה בהורה)",
+        clinic: "מרכז בריאות הילד כפר סבא",
+        mainDoctor: "ד\"ר גלעד (רפואת ילדים)",
+        scenarioTitle: "מקרה 5: ילדים - משטח מהיר לסטרפ, צליאק וברזל (מניעת דקירה מיותרת)",
+        clinicalDilemma: "ילד בן 12: ביצוע משטח Strep A מהיר נותן מענה תוך 5 דקות בקליניקה; אימות צריכת גלוטן מונע תוצאת False Negative בצליאק; ומבחנת ילדים משותפת מונעת דקירה כפולה.",
+        ramonPreventive: "בדיקת שמיעה וראייה לגיל 12 - בוצע",
+        questions: [
+          { id: "glutenDiet", text: "לבירור צליאק: האם אכל תזונה המכילה גלוטן בשבועות האחרונים?", defaultAnswer: true }
+        ],
+        tests: [
+          {
+            code: "0820",
+            name: "משטח גרון סטרפטוקוקוס מהיר (Strep A Rapid Test)",
+            specimenType: "bacteriology",
+            specimenName: "בקטריולוגיה",
+            tube: "ערכת בדיקה מהירה Strep A (מטוש)",
+            tubeColor: "#16a34a",
+            tubeCap: "#15803d",
+            tubeCount: 1,
+            orderRank: 99,
+            fastingRequired: false,
+            initialStatus: "ready",
+            statusText: "תשובה במקום תוך 5 דקות!",
+            notes: "ביצוע משטח מהיר בקליניקה. אם חיובי - הילד מתחיל טיפול מיידי.",
+            beforeInstructions: "הסבר מרגיע לילד ולהורה.",
+            duringInstructions: "דיגום מדויק של הלוע ללא מגע בלשון.",
+            afterInstructions: "טפטוף ריאגנטים A+B והמתנה 5 דקות לתוצאה.",
+            dangerAlert: null,
+            canDoToday: true
+          },
+          {
+            code: "0620",
+            name: "נוגדנים לצליאק (Celiac Screen - Anti-tTG IgA + Total IgA)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "צהובה (ג'ל סרום SST)",
+            tubeColor: "#eab308",
+            tubeCap: "#ca8a04",
+            tubeCount: 1,
+            orderRank: 3,
+            fastingRequired: false,
+            initialStatus: "attention",
+            statusText: "חובה תזונה רגילה עם גלוטן!",
+            notes: "אם הילד בדיאטה ללא גלוטן – הבדיקה תצא שלילית שגויה (False Negative).",
+            beforeInstructions: "בירור מול ההורה שהילד אכל לחם/גלוטן באופן רציף בחודש האחרון.",
+            duringInstructions: "איסוף במבחנת ג'ל.",
+            afterInstructions: "סרכוז ושליחה למעבדה.",
+            dangerAlert: "דיאטה נטולת גלוטן לפני הבדיקה פוסלת את האבחנה!",
+            canDoToday: true
+          },
+          {
+            code: "0130",
+            name: "ברזל, פריטין וטרנספרין (Iron Profile)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "צהובה (ג'ל סרום SST) - משותפת",
+            tubeColor: "#eab308",
+            tubeCap: "#ca8a04",
+            tubeCount: 0, // combined
+            orderRank: 3,
+            fastingRequired: false,
+            initialStatus: "ready",
+            statusText: "משותף למבחנת צליאק",
+            notes: "נלקח מאותה מבחנת ג'ל. מומלץ לא ליטול תוסף ברזל 24 שעות לפני.",
+            beforeInstructions: "בירור נטילת טיפות/כדורי ברזל הבוקר.",
+            duringInstructions: "לקיחה שגרתית.",
+            afterInstructions: "סרכוז שגרתי.",
+            dangerAlert: null,
+            canDoToday: true
+          },
+          {
+            code: "0001",
+            name: "ספירת דם (CBC)",
+            specimenType: "blood",
+            specimenName: "דם",
+            tube: "סגולה ילדים (Microtainer EDTA)",
+            tubeColor: "#9333ea",
+            tubeCap: "#7e22ce",
+            tubeCount: 1,
+            orderRank: 4,
+            fastingRequired: false,
+            initialStatus: "ready",
+            statusText: "מבחנת ילדים ייעודית",
+            notes: "שימוש במבחנת מיקרוטיינר להפחתת נפח דם נלקח.",
+            beforeInstructions: "שימוש במחט פרפרית דקה 23G/25G לילדים.",
+            duringInstructions: "היפוך עדין למניעת קרישי מיקרו.",
+            afterInstructions: "שמירה בטמפרטורת החדר.",
+            dangerAlert: null,
+            canDoToday: true
+          }
+        ]
+      }
+    ];
+
+    // Standard Order of Draw Reference (CLSI H3-A6 standard)
+    const ORDER_OF_DRAW_STANDARDS = [
+      {
+        step: 1,
+        name: "תרבית דם (Blood Cultures)",
+        colorName: "בקבוקי תרבית (צהוב/ירוק/כתום)",
+        hex: "#84cc16",
+        cap: "#65a30d",
+        inversions: "8-10 פעמים",
+        purpose: "מניעת זיהום חיידקי ממבחנות אחרות",
+        standardMatch: ["תרבית דם", "blood culture"]
+      },
+      {
+        step: 2,
+        name: "קרישה - נתרן ציטראט",
+        colorName: "תכלת (Sodium Citrate)",
+        hex: "#38bdf8",
+        cap: "#0284c7",
+        inversions: "3-4 פעמים בעדינות",
+        purpose: "מניעת השפעה של אקטיבטורים ממבחנות סרום/EDTA",
+        standardMatch: ["תכלת", "קרישה", "pt", "inr", "ptt"]
+      },
+      {
+        step: 3,
+        name: "סרום / כימיה / סרולוגיה",
+        colorName: "צהובה עם ג'ל (SST) או אדומה",
+        hex: "#eab308",
+        cap: "#ca8a04",
+        inversions: "5 פעמים בעדינות",
+        purpose: "הפרדת גלוקוז, שומנים, ויטמינים, אלקטרוליטים",
+        standardMatch: ["צהובה", "אדומה", "ג'ל", "sst", "כימיה", "שומנים", "ויטמין", "סרולוגיה", "קורטיזול", "ברזל"]
+      },
+      {
+        step: 4,
+        name: "הפרין (פלזמה / גזים)",
+        colorName: "ירוקה (Heparin)",
+        hex: "#22c55e",
+        cap: "#16a34a",
+        inversions: "8-10 פעמים",
+        purpose: "בדיקות כרומוזומים, גזים וציטוגנטיקה",
+        standardMatch: ["ירוקה", "הפרין"]
+      },
+      {
+        step: 5,
+        name: "המטולוגיה - EDTA",
+        colorName: "סגולה (K2/K3 EDTA)",
+        hex: "#9333ea",
+        cap: "#7e22ce",
+        inversions: "8-10 פעמים בעדינות",
+        purpose: "ספירת דם, המוגלובין מסוכרר, ACTH",
+        standardMatch: ["סגולה", "edta", "cbc", "ספירת דם", "hba1c", "acth"]
+      },
+      {
+        step: 6,
+        name: "גלוקוז / לקטט - פלואוריד אוקסלאט",
+        colorName: "אפורה (Sodium Fluoride)",
+        hex: "#64748b",
+        cap: "#475569",
+        inversions: "8-10 פעמים",
+        purpose: "עיכוב גליקוליזה למדידת סוכר מדויקת",
+        standardMatch: ["אפורה", "פלואוריד", "גלוקוז בצום", "gct"]
+      }
+    ];
+
+    // App State
+    let currentPatientIndex = 0;
+    let selectedTestCodes = new Set();
+    let userAnswers = {};
+    let activeFilter = 'all';
+    let currentDrawerTab = 'protocol';
+    let activeDetailTestCode = null;
+    let collectedTubeIndices = new Set();
+
+    // -------------------------------------------------------------
+    // AUDIO FEEDBACK & SOUND ENGINE (Web Audio API)
+    // -------------------------------------------------------------
+    let audioContext = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      try {
+        if (!audioContext) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) audioContext = new AudioCtx();
+        }
+        if (audioContext && audioContext.state === 'suspended') {
+          audioContext.resume().catch(() => {});
+        }
+      } catch (e) {
+        console.warn('AudioContext init error:', e);
+      }
+    }
+
+    // Auto-unlock audio on any initial user interaction anywhere on the page
+    document.addEventListener('click', () => {
+      initAudio();
+    }, { once: false });
+
+    // Dedicated loud alarm chime for timers and critical pre-analytical alerts
+    function playTimerAlarmSound() {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        if (!audioContext) return;
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+
+        const start = audioContext.currentTime + 0.05;
+        // 3 repeating alert sequences: A5 (880Hz) -> D6 (1174Hz) -> E6 (1318Hz)
+        const notes = [
+          { f: 880.00, t: 0.00, d: 0.18, type: 'sine' },
+          { f: 1174.66, t: 0.18, d: 0.22, type: 'triangle' },
+          { f: 880.00, t: 0.48, d: 0.18, type: 'sine' },
+          { f: 1174.66, t: 0.66, d: 0.22, type: 'triangle' },
+          { f: 880.00, t: 0.96, d: 0.18, type: 'sine' },
+          { f: 1318.51, t: 1.14, d: 0.38, type: 'triangle' }
+        ];
+
+        notes.forEach(n => {
+          const osc = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          osc.type = n.type;
+          osc.frequency.setValueAtTime(n.f, start + n.t);
+
+          gain.gain.setValueAtTime(0.001, start + n.t);
+          gain.gain.linearRampToValueAtTime(0.40, start + n.t + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + n.t + n.d);
+
+          osc.connect(gain);
+          gain.connect(audioContext.destination);
+
+          osc.start(start + n.t);
+          osc.stop(start + n.t + n.d + 0.05);
+        });
+      } catch (err) {
+        console.warn('Alarm sound error:', err);
+      }
+    }
+
+    function playMedicalSound(type = 'chime') {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        if (!audioContext) return;
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+        const now = audioContext.currentTime;
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+
+        if (type === 'success') {
+          // Harmonious medical success chime
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+          gain.gain.setValueAtTime(0.20, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'alert') {
+          // Warning chime
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(659.25, now);
+          osc.frequency.setValueAtTime(440, now + 0.12);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'pop') {
+          // Crisp soft tap
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(800, now);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        }
+      } catch (e) {
+        // Silent catch if audio not permitted
+      }
+    }
+
+    function toggleAudioFeedback() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('audioToggleBtn');
+      const icon = document.getElementById('audioToggleIcon');
+      const text = document.getElementById('audioToggleText');
+      if (soundEnabled) {
+        text.innerText = "צליל פעיל";
+        btn.className = "flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition shadow-2xs";
+        if (icon) icon.className = "w-4 h-4 text-emerald-600";
+        playMedicalSound('success');
+      } else {
+        text.innerText = "מושתק";
+        btn.className = "flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-400 transition shadow-2xs";
+        if (icon) icon.className = "w-4 h-4 text-slate-400";
+      }
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // GCT 50g PREGNANCY TIMER (Patient 4)
+    // -------------------------------------------------------------
+    let gctSeconds = 3600;
+    let gctTimer = null;
+    let gctIsRunning = false;
+
+    function toggleGctTimer() {
+      const startBtnText = document.getElementById('gctStartBtnText');
+      const statusBadge = document.getElementById('gctStatusBadge');
+      if (gctIsRunning) {
+        clearInterval(gctTimer);
+        gctIsRunning = false;
+        if (startBtnText) startBtnText.innerText = "המשך טיימר";
+        if (statusBadge) {
+          statusBadge.innerText = "טיימר מושהה";
+          statusBadge.className = "bg-amber-100 text-amber-900 border border-amber-300 font-bold px-2 py-0.5 rounded-full text-[10px]";
+        }
+      } else {
+        gctIsRunning = true;
+        if (startBtnText) startBtnText.innerText = "השהה טיימר";
+        if (statusBadge) {
+          statusBadge.innerText = "שתייה הסתיימה • מנוחה בלבד";
+          statusBadge.className = "bg-sky-100 text-maccabi-navy border border-sky-300 font-bold px-2 py-0.5 rounded-full text-[10px]";
+        }
+        playMedicalSound('pop');
+        gctTimer = setInterval(() => {
+          if (gctSeconds > 0) {
+            gctSeconds--;
+            updateGctTimerDisplay();
+          } else {
+            clearInterval(gctTimer);
+            gctIsRunning = false;
+            if (statusBadge) {
+              statusBadge.innerText = "הגיע זמן הדקירה! לקרוא מיד לעמדה";
+              statusBadge.className = "bg-red-100 text-red-900 border border-red-300 font-black px-2 py-0.5 rounded-full text-[10px] pulse-dot";
+            }
+            // Play loud audible alarm AND open dedicated non-blocking visual modal
+            playTimerAlarmSound();
+            openGctAlarmModal();
+          }
+        }, 1000);
+      }
+      lucide.createIcons();
+    }
+
+    function openGctAlarmModal() {
+      const modal = document.getElementById('gctAlarmModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        lucide.createIcons();
+      }
+    }
+
+    function closeGctAlarmModal() {
+      const modal = document.getElementById('gctAlarmModal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function fastForwardGctTimer() {
+      gctSeconds = 5; // 5 seconds remaining for instant demonstration
+      updateGctTimerDisplay();
+      if (!gctIsRunning) toggleGctTimer();
+    }
+
+    function resetGctTimer() {
+      if (gctTimer) clearInterval(gctTimer);
+      gctIsRunning = false;
+      gctSeconds = 3600;
+      updateGctTimerDisplay();
+      closeGctAlarmModal();
+      const startBtnText = document.getElementById('gctStartBtnText');
+      const statusBadge = document.getElementById('gctStatusBadge');
+      if (startBtnText) startBtnText.innerText = "התחל שתייה (60 דק')";
+      if (statusBadge) {
+        statusBadge.innerText = "המתנה לתחילת שתייה";
+        statusBadge.className = "bg-amber-100 text-amber-900 border border-amber-300 font-bold px-2 py-0.5 rounded-full text-[10px]";
+      }
+      lucide.createIcons();
+    }
+
+    function updateGctTimerDisplay() {
+      const m = Math.floor(gctSeconds / 60);
+      const s = gctSeconds % 60;
+      const timeStr = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      const disp = document.getElementById('gctTimerValue');
+      if (disp) disp.innerText = timeStr;
+
+      const pct = ((3600 - gctSeconds) / 3600) * 100;
+      const bar = document.getElementById('gctProgressBar');
+      if (bar) bar.style.width = `${pct}%`;
+    }
+
+    // -------------------------------------------------------------
+    // INITIALIZATION
+    // -------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      renderPatientSelector();
+      loadPatient(0);
+      setViewMode('all');
+      lucide.createIcons();
+    });
+
+    // -------------------------------------------------------------
+    // PATIENT SWITCHER & SETUP
+    // -------------------------------------------------------------
+    function renderPatientSelector() {
+      const container = document.getElementById('patientSelectorContainer');
+      container.innerHTML = '';
+
+      PATIENTS.forEach((p, idx) => {
+        const btn = document.createElement('button');
+        const isActive = idx === currentPatientIndex;
+        btn.className = `px-3 py-1 text-xs rounded-xl font-bold transition-all flex items-center gap-1.5 shadow-2xs ${
+          isActive 
+            ? 'bg-gradient-to-r from-maccabi-navy to-maccabi-blue text-white shadow-xs' 
+            : 'text-slate-700 bg-white hover:bg-sky-50 border border-slate-200/80 hover:border-sky-300'
+        }`;
+        btn.id = `patientBtn-${idx}`;
+        btn.onclick = () => loadPatient(idx);
+        btn.innerHTML = `
+          <span class="w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${isActive ? 'bg-white text-maccabi-navy font-black' : 'bg-slate-100 text-slate-600 font-bold'}">${idx + 1}</span>
+          <span>${p.name.split(' ')[0]}</span>
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    function loadPatient(idx) {
+      currentPatientIndex = idx;
+      const patient = PATIENTS[idx];
+      userAnswers = {};
+      patient.questions.forEach(q => {
+        userAnswers[q.id] = q.defaultAnswer;
+      });
+
+      // Update Top Nav Buttons
+      PATIENTS.forEach((_, i) => {
+        const btn = document.getElementById(`patientBtn-${i}`);
+        if (btn) {
+          if (i === idx) {
+            btn.className = 'px-3 py-1 text-xs rounded-xl font-bold bg-gradient-to-r from-maccabi-navy to-maccabi-blue text-white shadow-xs flex items-center gap-1.5 transition-all';
+            btn.querySelector('span').className = 'w-4 h-4 rounded-full flex items-center justify-center text-[10px] bg-white text-maccabi-navy font-black';
+          } else {
+            btn.className = 'px-3 py-1 text-xs rounded-xl font-bold text-slate-700 bg-white hover:bg-sky-50 border border-slate-200/80 hover:border-sky-300 flex items-center gap-1.5 transition-all';
+            btn.querySelector('span').className = 'w-4 h-4 rounded-full flex items-center justify-center text-[10px] bg-slate-100 text-slate-600 font-bold';
+          }
+        }
+      });
+
+      // Update Patient Details Strip
+      document.getElementById('pName').innerText = patient.name;
+      document.getElementById('pId').innerText = patient.tz;
+      document.getElementById('pAgeGender').innerText = `${patient.gender}, ${patient.age} (${patient.birthDate})`;
+      document.getElementById('pAvatar').innerText = patient.name.split(' ').map(n=>n[0]).join('');
+      document.getElementById('pClinic').innerText = `סניף: ${patient.clinic}`;
+      document.getElementById('pDoc').innerText = `רופא: ${patient.mainDoctor}`;
+      document.getElementById('pScenarioBadge').innerText = patient.scenarioTitle;
+      document.getElementById('pDilemmaText').innerText = patient.clinicalDilemma || 'מעבדה AI בודקת התאמת הפניות';
+      document.getElementById('ramonAlertText').innerText = patient.ramonPreventive;
+      document.getElementById('bnCountBadge').innerText = `${patient.tests.length} הפניות`;
+
+      // Handle GCT 50g Timer Banner visibility
+      const gctBanner = document.getElementById('gctTimerBanner');
+      if (gctBanner) {
+        if (patient.id === 'p4') {
+          gctBanner.classList.remove('hidden');
+          gctBanner.classList.add('flex');
+        } else {
+          gctBanner.classList.add('hidden');
+          gctBanner.classList.remove('flex');
+        }
+      }
+      resetGctTimer();
+
+      // Reset test selection: auto select all valid for today
+      selectedTestCodes.clear();
+      patient.tests.forEach(t => {
+        if (t.canDoToday && isTestCurrentlyEligible(t)) {
+          selectedTestCodes.add(t.code);
+        }
+      });
+
+      activeDetailTestCode = null;
+      renderAlfonQuickQuestions();
+
+      // Render Components
+      renderBossaNovaPanel();
+      renderVerificationQuestions();
+      renderSmartAlerts();
+      renderTestsTable();
+      renderActionDrawer();
+      updateFooterCounts();
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------
+    // ELIGIBILITY EVALUATION BASED ON ANSWERS
+    // -------------------------------------------------------------
+    function isTestCurrentlyEligible(test) {
+      const patient = PATIENTS[currentPatientIndex];
+
+      // Patient 1 (Danny): Breath test disqualified if breathFasting is false
+      if (patient.id === "p1") {
+        if (test.code === "0910" && !userAnswers["breathFasting"]) return false;
+        if ((test.code === "0102" || test.code === "0145") && !userAnswers["fasting8"]) return false;
+      }
+
+      // Patient 3 (Yossi): Fasting tests disqualified if didFast is false
+      if (patient.id === "p3") {
+        if ((test.code === "0102" || test.code === "0145") && !userAnswers["didFast"]) return false;
+      }
+
+      // Stool test or tests marked as canDoToday: false are deferred
+      if (!test.canDoToday) return false;
+
+      return true;
+    }
+
+    function getDynamicTestStatus(test) {
+      const patient = PATIENTS[currentPatientIndex];
+
+      if (patient.id === "p1") {
+        if (test.code === "0910") {
+          return userAnswers["breathFasting"] 
+            ? { badge: "bg-emerald-100 text-emerald-800 border-emerald-300", text: "תקין לביצוע", icon: "check-circle", eligible: true }
+            : { badge: "bg-red-100 text-red-800 border-red-300", text: "פסול! עישן הבוקר", icon: "alert-octagon", eligible: false, alert: "הנבדק עישן סיגריה. ביצוע הבדיקה ייתן False Positive לחיידק. יש לדחות!" };
+        }
+        if (test.fastingRequired && !userAnswers["fasting8"]) {
+          return { badge: "bg-red-100 text-red-800 border-red-300", text: "פסול! אינו בצום", icon: "alert-octagon", eligible: false, alert: "הנבדק אינו בצום. בדיקת סוכר/שומנים תיפסל." };
+        }
+      }
+
+      if (patient.id === "p3") {
+        if ((test.code === "0102" || test.code === "0145") && !userAnswers["didFast"]) {
+          return { badge: "bg-red-100 text-red-800 border-red-300", text: "פסול! שתה קפה ממותק", icon: "alert-octagon", eligible: false, alert: "קפה ממותק פוסל גלוקוז ושומנים. המערכת שומרת את ההפניה למועד אחר!" };
+        }
+      }
+
+      if (test.code === "0420") { // ACTH
+        return { badge: "bg-purple-100 text-purple-800 border-purple-300 font-extrabold", text: "מבחנה מקוררת בקרח!", icon: "snowflake", eligible: true };
+      }
+
+      if (test.code === "0020") { // PT/INR
+        return { badge: "bg-sky-100 text-sky-800 border-sky-300", text: "למלא עד קו הסימון!", icon: "info", eligible: true };
+      }
+
+      if (!test.canDoToday) {
+        return { badge: "bg-slate-100 text-slate-700 border-slate-300", text: test.statusText, icon: "home", eligible: false };
+      }
+
+      return { badge: "bg-emerald-100 text-emerald-800 border-emerald-300", text: test.statusText, icon: "check-circle", eligible: true };
+    }
+
+    // -------------------------------------------------------------
+    // RENDERING: BOSSA NOVA RAW REFERRALS
+    // -------------------------------------------------------------
+    function renderBossaNovaPanel() {
+      const patient = PATIENTS[currentPatientIndex];
+      const listEl = document.getElementById('bnReferralsList');
+      listEl.innerHTML = '';
+
+      patient.tests.forEach((t) => {
+        const item = document.createElement('div');
+        item.className = "p-2.5 rounded-lg border border-slate-200 bg-white hover:border-slate-300 transition text-xs";
+        item.innerHTML = `
+          <div class="flex items-start justify-between gap-1">
+            <span class="font-bold text-slate-800">${t.name}</span>
+            <span class="text-[10px] text-slate-400 font-mono">#${t.code}</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mt-1 flex items-center justify-between">
+            <span>רופא: ${patient.mainDoctor.split(' ')[1] || 'רופא'}</span>
+            <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">פעילה</span>
+          </div>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // RENDERING: SMART QUESTIONS & ATTENTION BAR
+    // -------------------------------------------------------------
+    function renderVerificationQuestions() {
+      const patient = PATIENTS[currentPatientIndex];
+      const barEl = document.getElementById('verificationCheckboxes');
+      barEl.innerHTML = '';
+
+      if (patient.questions.length === 0) {
+        barEl.innerHTML = '<span class="text-slate-500 text-xs">אין שאלות בירור מיוחדות למטופל זה.</span>';
+        return;
+      }
+
+      patient.questions.forEach((q) => {
+        const isChecked = userAnswers[q.id];
+        const wrapper = document.createElement('label');
+        wrapper.className = `inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs cursor-pointer transition ${
+          isChecked 
+            ? 'bg-white border-emerald-300 text-emerald-900 shadow-2xs font-semibold' 
+            : 'bg-red-50 border-red-300 text-red-900 font-bold'
+        }`;
+        wrapper.innerHTML = `
+          <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleAnswer('${q.id}', this.checked)" class="rounded text-maccabi-primary focus:ring-maccabi-primary w-3.5 h-3.5 cursor-pointer">
+          <span>${q.text}</span>
+        `;
+        barEl.appendChild(wrapper);
+      });
+    }
+
+    function toggleAnswer(qId, val) {
+      userAnswers[qId] = val;
+      const patient = PATIENTS[currentPatientIndex];
+      
+      // Auto update test selections based on new answer
+      patient.tests.forEach(t => {
+        if (!isTestCurrentlyEligible(t)) {
+          selectedTestCodes.delete(t.code);
+        } else if (t.canDoToday) {
+          selectedTestCodes.add(t.code);
+        }
+      });
+
+      if (!val) {
+        playMedicalSound('alert');
+      } else {
+        playMedicalSound('pop');
+      }
+
+      renderVerificationQuestions();
+      renderSmartAlerts();
+      renderTestsTable();
+      renderActionDrawer();
+      updateFooterCounts();
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------
+    // RENDERING: SMART ATTENTION ALERTS BANNER (Layer 2)
+    // -------------------------------------------------------------
+    function renderSmartAlerts() {
+      const patient = PATIENTS[currentPatientIndex];
+      const listEl = document.getElementById('smartAlertsList');
+      listEl.innerHTML = '';
+
+      const alerts = [];
+
+      patient.tests.forEach(t => {
+        const dynStatus = getDynamicTestStatus(t);
+        if (dynStatus.alert) {
+          alerts.push({ text: dynStatus.alert, type: 'danger', test: t.name });
+        } else if (t.dangerAlert) {
+          alerts.push({ text: t.dangerAlert, type: 'warning', test: t.name });
+        }
+      });
+
+      // Special alert for blood order when citrate (light blue) is present
+      const hasCitrate = patient.tests.some(t => t.tube.includes('תכלת') && selectedTestCodes.has(t.code));
+      if (hasCitrate) {
+        alerts.push({
+          text: "שים לב: נכללת מבחנת קרישה תכלת! חובה לקחת בסדר לקיחה ראשון/שני, ולמלא בדיוק עד קו הסימון (90%-100%).",
+          type: 'info',
+          test: "סדר לקיחה קריטי"
+        });
+      }
+
+      if (alerts.length === 0) {
+        document.getElementById('smartAlertsBanner').className = "p-2.5 bg-emerald-50 border-b border-emerald-200 text-emerald-900 text-xs flex items-center gap-2";
+        listEl.innerHTML = '<span class="font-bold flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>כל תנאי ההכנה אומתו בהצלחה. אין סתירות בין הבדיקות שנבחרו.</span>';
+        return;
+      }
+
+      document.getElementById('smartAlertsBanner').className = "p-3 bg-amber-50 border-b border-amber-200 text-amber-900 text-xs flex items-start gap-2.5";
+
+      alerts.forEach(a => {
+        const div = document.createElement('div');
+        div.className = "flex items-center gap-2";
+        div.innerHTML = `
+          <span class="font-bold underline decoration-amber-400 decoration-2">${a.test}:</span>
+          <span>${a.text}</span>
+        `;
+        listEl.appendChild(div);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // RENDERING: MAIN TESTS TABLE (Layer 1: Visual Specimen Colors)
+    // -------------------------------------------------------------
+    function renderTestsTable() {
+      const patient = PATIENTS[currentPatientIndex];
+      const tbody = document.getElementById('testsTableBody');
+      tbody.innerHTML = '';
+
+      let filteredTests = patient.tests;
+      if (activeFilter === 'today') {
+        filteredTests = patient.tests.filter(t => selectedTestCodes.has(t.code));
+      } else if (activeFilter === 'alerts') {
+        filteredTests = patient.tests.filter(t => !isTestCurrentlyEligible(t) || t.dangerAlert || t.initialStatus === 'attention');
+      }
+
+      filteredTests.forEach(t => {
+        const isSelected = selectedTestCodes.has(t.code);
+        const dynStatus = getDynamicTestStatus(t);
+        const isEligible = dynStatus.eligible;
+        const isCitrate = t.tube.includes('תכלת') || t.name.includes('קרישה');
+
+        // Color stripe by specimen
+        let borderStripeColor = "border-r-slate-300";
+        let specimenPillClass = "bg-slate-100 text-slate-700 border-slate-200";
+        let dotColor = "#94A3B8";
+
+        if (t.specimenType === 'blood') {
+          borderStripeColor = "border-r-red-500";
+          specimenPillClass = "bg-red-50 text-red-700 border-red-200/80";
+          dotColor = "#DC2626";
+        } else if (t.specimenType === 'urine') {
+          borderStripeColor = "border-r-amber-500";
+          specimenPillClass = "bg-amber-50 text-amber-800 border-amber-200/80";
+          dotColor = "#D97706";
+        } else if (t.specimenType === 'stool') {
+          borderStripeColor = "border-r-yellow-800";
+          specimenPillClass = "bg-yellow-50 text-yellow-900 border-yellow-300/80";
+          dotColor = "#854D0E";
+        } else if (t.specimenType === 'breath') {
+          borderStripeColor = "border-r-blue-500";
+          specimenPillClass = "bg-blue-50 text-blue-700 border-blue-200/80";
+          dotColor = "#2563EB";
+        } else if (t.specimenType === 'bacteriology') {
+          borderStripeColor = "border-r-emerald-500";
+          specimenPillClass = "bg-emerald-50 text-emerald-800 border-emerald-200/80";
+          dotColor = "#16A34A";
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = `test-row-card bg-white border-b border-slate-100 cursor-pointer transition-all border-r-[5px] ${borderStripeColor} ${isSelected ? 'bg-sky-50/40' : ''} ${!isEligible ? 'opacity-75 bg-slate-50/40' : ''}`;
+        tr.onclick = (e) => {
+          if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+            openTestDetailInDrawer(t.code);
+          }
+        };
+
+        tr.innerHTML = `
+          <td class="p-3 text-center">
+            <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleTestSelection('${t.code}', this.checked)" class="w-4 h-4 rounded border-slate-300 text-maccabi-blue focus:ring-maccabi-primary cursor-pointer transition">
+          </td>
+          <td class="p-3">
+            <div class="font-extrabold text-slate-900 flex items-center gap-1.5 text-xs">
+              <span>${t.name}</span>
+              ${t.dangerAlert ? '<span title="בדיקה עם סיכון מיוחד לפסילה" class="text-amber-500"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i></span>' : ''}
+            </div>
+            <div class="text-[10px] text-slate-400 font-mono mt-0.5">קוד מכבי: #${t.code}</div>
+          </td>
+          <td class="p-3">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${specimenPillClass} shadow-2xs">
+              <span class="w-2 h-2 rounded-full" style="background-color: ${dotColor};"></span>
+              <span>${t.specimenName}</span>
+            </span>
+          </td>
+          <td class="p-3">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border ${dynStatus.badge} shadow-2xs">
+              <i data-lucide="${dynStatus.icon}" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              <span>${dynStatus.text}</span>
+            </span>
+          </td>
+          <td class="p-3">
+            <div class="text-slate-800 font-medium text-xs leading-relaxed">${t.notes}</div>
+            ${t.fastingRequired ? '<span class="inline-flex items-center gap-1 mt-1 text-[10px] bg-amber-100/80 text-amber-900 border border-amber-200 px-2 py-0.2 rounded-md font-bold"><i data-lucide="clock" class="w-3 h-3"></i> מחייב צום מים בלבד</span>' : ''}
+          </td>
+          <td class="p-3">
+            <div class="flex items-center gap-2.5">
+              ${t.tubeColor ? `
+                <div class="vac-tube flex-shrink-0" title="${t.tube}">
+                  <div class="vac-cap" style="background-color: ${t.tubeCap || t.tubeColor};"></div>
+                  <div class="vac-body">
+                    ${isCitrate ? '<div class="vac-fill-line" title="קו מילוי מחייב 90-100%"></div>' : ''}
+                    <div class="vac-barcode"><div class="vac-barcode-line"></div><div class="vac-barcode-line"></div><div class="vac-barcode-line"></div></div>
+                    <div class="vac-liquid" style="height: ${isCitrate ? '75%' : '65%'}; background-color: ${t.tubeColor};"></div>
+                  </div>
+                </div>
+              ` : `
+                <div class="w-6 h-6 rounded-lg bg-amber-100/70 border border-amber-200 flex items-center justify-center text-amber-800 flex-shrink-0">
+                  <i data-lucide="box" class="w-3.5 h-3.5"></i>
+                </div>
+              `}
+              <div>
+                <div class="font-bold text-slate-800 text-[11px]">${t.tube}</div>
+                <div class="text-[10px] text-slate-500 font-medium mt-0.5">${t.tubeCount > 0 ? `${t.tubeCount} יח'` : 'מבחנה מאוחדת'}</div>
+              </div>
+            </div>
+          </td>
+          <td class="p-3 text-center">
+            <button onclick="openTestDetailInDrawer('${t.code}')" class="px-2.5 py-1 rounded-lg border border-slate-200 hover:border-maccabi-primary hover:bg-sky-50 text-maccabi-primary font-bold text-[11px] transition shadow-2xs inline-flex items-center gap-1 group">
+              <span>הנחיות</span>
+              <i data-lucide="chevron-left" class="w-3 h-3 group-hover:-translate-x-0.5 transition"></i>
+            </button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // SELECTION & FILTERS
+    // -------------------------------------------------------------
+    function toggleTestSelection(code, isChecked) {
+      if (isChecked) {
+        selectedTestCodes.add(code);
+      } else {
+        selectedTestCodes.delete(code);
+      }
+      playMedicalSound('pop');
+      renderTestsTable();
+      renderActionDrawer();
+      updateFooterCounts();
+      lucide.createIcons();
+    }
+
+    function toggleAllCheckboxes(isChecked) {
+      const patient = PATIENTS[currentPatientIndex];
+      if (isChecked) {
+        patient.tests.forEach(t => {
+          if (isTestCurrentlyEligible(t)) selectedTestCodes.add(t.code);
+        });
+        playMedicalSound('success');
+      } else {
+        selectedTestCodes.clear();
+        playMedicalSound('pop');
+      }
+      renderTestsTable();
+      renderActionDrawer();
+      updateFooterCounts();
+      lucide.createIcons();
+    }
+
+    function selectAllValidForToday() {
+      const patient = PATIENTS[currentPatientIndex];
+      selectedTestCodes.clear();
+      patient.tests.forEach(t => {
+        if (t.canDoToday && isTestCurrentlyEligible(t)) {
+          selectedTestCodes.add(t.code);
+        }
+      });
+      playMedicalSound('success');
+      renderTestsTable();
+      renderActionDrawer();
+      updateFooterCounts();
+      lucide.createIcons();
+    }
+
+    function filterTests(type) {
+      activeFilter = type;
+      playMedicalSound('pop');
+      ['all', 'today', 'alerts'].forEach(f => {
+        const btn = document.getElementById(`filterBtn-${f}`);
+        if (f === type) {
+          btn.className = "px-3 py-1 rounded-md font-bold bg-white text-maccabi-blue shadow-xs";
+        } else {
+          btn.className = "px-3 py-1 rounded-md font-semibold text-slate-600 hover:text-slate-900";
+        }
+      });
+      renderTestsTable();
+      lucide.createIcons();
+    }
+
+    function updateFooterCounts() {
+      const patient = PATIENTS[currentPatientIndex];
+      const total = patient.tests.length;
+      let ready = 0;
+      let attention = 0;
+      let future = 0;
+
+      patient.tests.forEach(t => {
+        const dyn = getDynamicTestStatus(t);
+        if (!t.canDoToday) {
+          future++;
+        } else if (!dyn.eligible) {
+          attention++;
+        } else {
+          ready++;
+        }
+      });
+
+      document.getElementById('summaryTotalCount').innerText = total;
+      document.getElementById('summaryReadyCount').innerText = ready;
+      document.getElementById('summaryAttentionCount').innerText = attention;
+      document.getElementById('summaryFutureCount').innerText = future;
+
+      const selCount = selectedTestCodes.size;
+      document.getElementById('selectedCountBadge').innerText = `${selCount} בדיקות סומנו לביצוע`;
+      document.getElementById('executeBtnCount').innerText = selCount;
+
+      const completeBtn = document.getElementById('completeWorkflowBtn');
+      if (selCount > 0) {
+        completeBtn.disabled = false;
+        document.getElementById('drawerStepStatus').innerText = `${selCount} בדיקות מוכנות לפעולה`;
+      } else {
+        completeBtn.disabled = true;
+        document.getElementById('drawerStepStatus').innerText = `לא נבחרו בדיקות לביצוע`;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ACTION DRAWER & ORDER OF DRAW (Layer 3: Action)
+    // -------------------------------------------------------------
+    function switchDrawerTab(tab) {
+      currentDrawerTab = tab;
+      ['protocol', 'details', 'postHandling'].forEach(t => {
+        const btn = document.getElementById(`tabBtn-${t}`);
+        if (t === tab) {
+          btn.className = "flex-1 py-2.5 border-b-2 border-maccabi-blue text-maccabi-blue bg-white text-center font-bold";
+        } else {
+          btn.className = "flex-1 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 text-center font-medium";
+        }
+      });
+      renderActionDrawer();
+      lucide.createIcons();
+    }
+
+    function openTestDetailInDrawer(code) {
+      activeDetailTestCode = code;
+      switchDrawerTab('details');
+    }
+
+    function resetDrawerToOverview() {
+      activeDetailTestCode = null;
+      switchDrawerTab('protocol');
+    }
+
+    function renderActionDrawer() {
+      const patient = PATIENTS[currentPatientIndex];
+      const drawer = document.getElementById('drawerContentArea');
+      drawer.innerHTML = '';
+
+      const selectedTests = patient.tests.filter(t => selectedTestCodes.has(t.code));
+
+      if (currentDrawerTab === 'protocol') {
+        renderProtocolTab(selectedTests, drawer);
+      } else if (currentDrawerTab === 'details') {
+        renderDetailsTab(selectedTests, drawer);
+      } else if (currentDrawerTab === 'postHandling') {
+        renderPostHandlingTab(selectedTests, drawer);
+      }
+    }
+
+    // TAB 1: ORDER OF DRAW & TUBES SUMMARY
+    function renderProtocolTab(selectedTests, container) {
+      if (selectedTests.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-10 text-slate-400">
+            <i data-lucide="layers" class="w-10 h-10 mx-auto mb-2 text-slate-300"></i>
+            <p class="font-bold text-sm text-slate-600">אין בדיקות מסומנות לביצוע כרגע</p>
+            <p class="text-xs mt-1">סמן בדיקות בטבלה להפקת סדר לקיחת מבחנות אוטומטי</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Filter blood tests and calculate order of draw
+      const bloodTests = selectedTests.filter(t => t.specimenType === 'blood');
+      const nonBloodTests = selectedTests.filter(t => t.specimenType !== 'blood');
+
+      // Sort blood tests according to standard order of draw
+      bloodTests.sort((a, b) => a.orderRank - b.orderRank);
+
+      // Group identical tubes (e.g. lipids + B12 share the yellow SST tube)
+      const tubeGroups = [];
+      bloodTests.forEach(test => {
+        let existing = tubeGroups.find(g => g.tube === test.tube);
+        if (existing) {
+          existing.tests.push(test.name);
+        } else {
+          tubeGroups.push({
+            tube: test.tube,
+            tubeColor: test.tubeColor,
+            tubeCap: test.tubeCap,
+            count: test.tubeCount > 0 ? test.tubeCount : 1,
+            orderRank: test.orderRank,
+            tests: [test.name],
+            afterInstructions: test.afterInstructions,
+            duringInstructions: test.duringInstructions
+          });
+        }
+      });
+
+      tubeGroups.sort((a, b) => a.orderRank - b.orderRank);
+
+      let html = `
+        <div class="bg-sky-50 border border-sky-200 rounded-xl p-3 text-xs text-sky-900">
+          <div class="flex items-center gap-1.5 font-bold mb-1">
+            <i data-lucide="info" class="w-4 h-4 text-maccabi-primary"></i>
+            <span>חישוב סדר מבחנות אוטומטי (CLSI Order of Draw):</span>
+          </div>
+          <p class="text-slate-600 leading-normal">
+            למניעת זיהום צולב של חומרי קרישה וספיגה. הקפידי על סדר זה:
+          </p>
+        </div>
+      `;
+
+      if (tubeGroups.length > 0) {
+        html += `
+          <!-- Mini Virtual Tube Rack in Drawer -->
+          <div class="bg-gradient-to-b from-slate-100 via-slate-50 to-slate-200 p-3 rounded-2xl border border-slate-300 shadow-inner">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-black text-slate-800 flex items-center gap-1.5">
+                <i data-lucide="package-check" class="w-4 h-4 text-maccabi-primary"></i>
+                מעמד מבחנות שולחני
+              </span>
+              <span class="text-[10px] bg-white border border-slate-200 text-maccabi-navy font-bold px-2 py-0.5 rounded-md shadow-2xs">
+                ${tubeGroups.length} מבחנות
+              </span>
+            </div>
+            <div class="flex items-end justify-center gap-2 overflow-x-auto py-1 custom-scrollbar">
+              ${tubeGroups.map((g, idx) => `
+                <div class="rack-slot" style="min-width: 56px; padding: 6px 4px 4px;">
+                  <span class="text-[9px] font-black text-maccabi-navy bg-white px-1.5 py-0.2 rounded-full mb-1 border border-slate-200">${idx + 1}</span>
+                  <div class="vac-tube" title="${g.tube}">
+                    <div class="vac-cap" style="width: 18px; height: 10px; background-color: ${g.tubeCap || g.tubeColor};"></div>
+                    <div class="vac-body" style="width: 13px; height: 38px;">
+                      ${g.tube.includes('תכלת') ? '<div class="vac-fill-line"></div>' : ''}
+                      <div class="vac-liquid" style="height: 65%; background-color: ${g.tubeColor};"></div>
+                    </div>
+                  </div>
+                  <div class="rack-hole" style="width: 18px; height: 6px;"></div>
+                  <div class="text-[9px] font-extrabold text-slate-800 mt-1 truncate max-w-[52px]">${g.tube.split(' ')[0]}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="space-y-3 pt-1">
+        `;
+        tubeGroups.forEach((group, index) => {
+          html += `
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-maccabi-primary transition">
+              <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2 mb-2">
+                <div class="flex items-center gap-3">
+                  <span class="w-6 h-6 rounded-xl bg-maccabi-navy text-white font-black text-xs flex items-center justify-center shadow-xs">
+                    ${index + 1}
+                  </span>
+                  <!-- Illustrated Realistic Vacutainer -->
+                  <div class="vac-tube flex-shrink-0">
+                    <div class="vac-cap" style="background-color: ${group.tubeCap || group.tubeColor}"></div>
+                    <div class="vac-body">
+                      ${group.tube.includes('תכלת') ? '<div class="vac-fill-line" title="קו מילוי 90-100%"></div>' : ''}
+                      <div class="vac-barcode"><div class="vac-barcode-line"></div><div class="vac-barcode-line"></div></div>
+                      <div class="vac-liquid" style="height: 65%; background-color: ${group.tubeColor}"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 class="font-extrabold text-xs text-slate-900">${group.tube}</h4>
+                    <div class="text-[10px] text-slate-500 font-medium">כמות: 1 מבחנה &bull; היפוך עדין 5-8 פעמים</div>
+                  </div>
+                </div>
+                <span class="text-[10px] bg-sky-50 text-maccabi-navy border border-sky-200 font-bold px-2 py-0.5 rounded-md">שלב ${index + 1}</span>
+              </div>
+              
+              <div class="text-[11px] text-slate-600">
+                <span class="font-bold text-slate-700">בדיקות במבחנה זו:</span>
+                <span class="text-maccabi-blue font-semibold">${group.tests.join(', ')}</span>
+              </div>
+              
+              <div class="mt-2 text-[10px] bg-slate-50 p-1.5 rounded text-slate-600 flex items-start gap-1">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>${group.duringInstructions || 'היפוך עדין מיד עם סיום הדקירה'}</span>
+              </div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      }
+
+      // Non-blood specimens
+      if (nonBloodTests.length > 0) {
+        html += `
+          <div class="pt-2">
+            <h4 class="font-extrabold text-xs text-slate-800 mb-2 flex items-center gap-1.5">
+              <i data-lucide="box" class="w-4 h-4 text-slate-500"></i>
+              <span>דגימות נוספות (ללא דקירת דם):</span>
+            </h4>
+            <div class="space-y-2">
+        `;
+        nonBloodTests.forEach(nb => {
+          html += `
+            <div class="p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-800">${nb.name}</span>
+                <span class="text-[10px] font-semibold bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">${nb.specimenName}</span>
+              </div>
+              <div class="text-[11px] text-slate-600 mt-1">${nb.tube}</div>
+              <div class="text-[10px] text-slate-500 mt-0.5">${nb.beforeInstructions}</div>
+            </div>
+          `;
+        });
+        html += `</div></div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    // TAB 2: DETAILED INSTRUCTIONS (Before, During, After)
+    function renderDetailsTab(selectedTests, container) {
+      const patient = PATIENTS[currentPatientIndex];
+      let testToShow = null;
+
+      if (activeDetailTestCode) {
+        testToShow = patient.tests.find(t => t.code === activeDetailTestCode);
+      } else if (selectedTests.length > 0) {
+        testToShow = selectedTests[0];
+      }
+
+      if (!testToShow) {
+        container.innerHTML = `
+          <div class="text-center py-10 text-slate-400">
+            <p class="font-bold text-sm text-slate-600">בחרי בדיקה בטבלה להצגת הנחיות מפורטות</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          
+          <!-- Test Header Card -->
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-gradient-to-l from-slate-50 to-white shadow-2xs">
+            <div class="flex items-center justify-between">
+              <h4 class="font-extrabold text-sm text-slate-900">${testToShow.name}</h4>
+              <span class="text-xs font-mono text-slate-500">#${testToShow.code}</span>
+            </div>
+            <div class="flex items-center gap-2 mt-2">
+              <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800">${testToShow.specimenName}</span>
+              <span class="text-[11px] text-slate-500">${testToShow.tube}</span>
+            </div>
+          </div>
+
+          <!-- Phase 1: Before Draw -->
+          <div class="p-3 rounded-xl border border-amber-200 bg-amber-50/50 text-xs space-y-1">
+            <div class="flex items-center gap-1.5 font-bold text-amber-900">
+              <i data-lucide="clock" class="w-4 h-4 text-amber-600"></i>
+              <span>1. לפני הלקיחה (בירורים והכנה):</span>
+            </div>
+            <p class="text-amber-950 font-medium leading-relaxed">${testToShow.beforeInstructions}</p>
+          </div>
+
+          <!-- Phase 2: During Draw -->
+          <div class="p-3 rounded-xl border border-sky-200 bg-sky-50/50 text-xs space-y-1">
+            <div class="flex items-center gap-1.5 font-bold text-sky-900">
+              <i data-lucide="syringe" class="w-4 h-4 text-maccabi-primary"></i>
+              <span>2. בזמן הלקיחה (מבחנות וסדר):</span>
+            </div>
+            <p class="text-sky-950 font-medium leading-relaxed">${testToShow.duringInstructions}</p>
+          </div>
+
+          <!-- Phase 3: After Draw -->
+          <div class="p-3 rounded-xl border border-emerald-200 bg-emerald-50/50 text-xs space-y-1">
+            <div class="flex items-center gap-1.5 font-bold text-emerald-900">
+              <i data-lucide="package-check" class="w-4 h-4 text-emerald-600"></i>
+              <span>3. לאחר הלקיחה (טיפול בדגימה):</span>
+            </div>
+            <p class="text-emerald-950 font-medium leading-relaxed">${testToShow.afterInstructions}</p>
+          </div>
+
+          ${testToShow.dangerAlert ? `
+            <div class="p-3 rounded-xl border border-red-300 bg-red-50 text-xs text-red-900 flex items-start gap-2">
+              <i data-lucide="alert-octagon" class="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5"></i>
+              <div>
+                <span class="font-bold block">חריג / סיכון גבוה לפסילה:</span>
+                <span>${testToShow.dangerAlert}</span>
+              </div>
+            </div>
+          ` : ''}
+
+        </div>
+      `;
+    }
+
+    // TAB 3: POST-COLLECTION HANDLING (Centrifugation, Light, Temperature)
+    function renderPostHandlingTab(selectedTests, container) {
+      if (selectedTests.length === 0) {
+        container.innerHTML = '<div class="text-center py-10 text-slate-400">אין בדיקות מסומנות.</div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="space-y-3">
+          <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs text-slate-700">
+            <h4 class="font-extrabold text-slate-900 mb-1 flex items-center gap-1.5">
+              <i data-lucide="thermometer" class="w-4 h-4 text-maccabi-blue"></i>
+              <span>דרישות שינוע וטמפרטורה לדגימות הנבחרות:</span>
+            </h4>
+            <p class="text-[11px] text-slate-500">ריכוז כל ההנחיות לשימור תקין ומניעת פירוק אנזימטי/תאי</p>
+          </div>
+
+          <div class="space-y-2">
+            ${selectedTests.map(t => `
+              <div class="p-2.5 rounded-lg border border-slate-200 bg-white text-xs">
+                <div class="flex justify-between font-bold text-slate-800 mb-1">
+                  <span>${t.name}</span>
+                  <span class="text-[10px] text-maccabi-primary">${t.tube}</span>
+                </div>
+                <div class="text-[11px] text-slate-600">${t.afterInstructions}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function activateFullActionProtocol() {
+      const patient = PATIENTS[currentPatientIndex];
+      const selectedTests = patient.tests.filter(t => selectedTestCodes.has(t.code));
+
+      if (selectedTests.length === 0) {
+        alert("לא נבחרו בדיקות לביצוע.\nנא לסמן תחילה בטבלה את הבדיקות המיועדות לביצוע היום.");
+        return;
+      }
+
+      // Ensure action drawer is open and synced
+      const drawer = document.getElementById('actionDrawer');
+      drawer.classList.remove('hidden');
+      const drawerBtnText = document.getElementById('actionDrawerToggleText');
+      const drawerBtn = document.getElementById('actionDrawerToggleBtn');
+      if (drawerBtnText) drawerBtnText.innerText = "הסתר פאנל פעולה";
+      if (drawerBtn) drawerBtn.classList.add('bg-sky-50', 'border-sky-300', 'text-maccabi-blue');
+
+      switchDrawerTab('protocol');
+      drawer.classList.add('ring-2', 'ring-maccabi-primary');
+      setTimeout(() => drawer.classList.remove('ring-2', 'ring-maccabi-primary'), 1000);
+
+      // Open the dedicated full-screen modal
+      openProtocolExecutionModal(selectedTests);
+      lucide.createIcons();
+    }
+
+    function openProtocolExecutionModal(selectedTests) {
+      const patient = PATIENTS[currentPatientIndex];
+      const modal = document.getElementById('protocolExecutionModal');
+      const contentEl = document.getElementById('protocolModalContent');
+
+      collectedTubeIndices.clear();
+
+      document.getElementById('modalPatientSubtitle').innerText = `מטופל: ${patient.name} (${patient.tz}) | סדר לקיחה לפי תקן בינלאומי CLSI H3-A6`;
+
+      // Filter blood vs non-blood
+      const bloodTests = selectedTests.filter(t => t.specimenType === 'blood');
+      const nonBloodTests = selectedTests.filter(t => t.specimenType !== 'blood');
+
+      // Sort blood tests according to orderRank
+      bloodTests.sort((a, b) => a.orderRank - b.orderRank);
+
+      // Group tubes
+      const tubeGroups = [];
+      bloodTests.forEach(test => {
+        let existing = tubeGroups.find(g => g.tube === test.tube);
+        if (existing) {
+          existing.tests.push(test.name);
+        } else {
+          tubeGroups.push({
+            tube: test.tube,
+            tubeColor: test.tubeColor,
+            tubeCap: test.tubeCap,
+            count: test.tubeCount > 0 ? test.tubeCount : 1,
+            orderRank: test.orderRank,
+            tests: [test.name],
+            duringInstructions: test.duringInstructions,
+            afterInstructions: test.afterInstructions,
+            dangerAlert: test.dangerAlert
+          });
+        }
+      });
+      tubeGroups.sort((a, b) => a.orderRank - b.orderRank);
+
+      document.getElementById('modalSelectedCountBadge').innerText = `${tubeGroups.length} מבחנות דם + ${nonBloodTests.length} דגימות נוספות`;
+
+      let html = `
+        <!-- VIRTUAL TUBE RACK (מעמד מבחנות שולחני לעמדת הלקיחה) -->
+        <div class="bg-gradient-to-b from-slate-100 via-slate-50 to-slate-200 p-4 md:p-5 rounded-2xl border border-slate-300 shadow-inner">
+          <div class="flex items-center justify-between mb-3.5 border-b border-slate-200/80 pb-2.5 flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-maccabi-navy text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                <i data-lucide="package-check" class="w-4 h-4 text-sky-300"></i>
+              </div>
+              <div>
+                <h4 class="font-black text-sm text-slate-900 tracking-tight">מעמד מבחנות וכלים לעמדת הלקיחה (CLSI Order Rack)</h4>
+                <p class="text-[11px] text-slate-500 font-medium">סדרי את המבחנות במעמד מימין לשמאל • לחצי על מבחנה לסימון שאיבה הושלמה (V)</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="rackCompletionStatus" class="text-xs bg-sky-100 text-maccabi-navy border border-sky-200 font-extrabold px-3 py-1 rounded-xl shadow-2xs">
+                0 מתוך ${tubeGroups.length} מבחנות נשאבו
+              </span>
+            </div>
+          </div>
+
+          <!-- Tube Rack Slots -->
+          <div class="flex items-end justify-center gap-3 md:gap-5 overflow-x-auto py-2 px-1 custom-scrollbar">
+      `;
+
+      tubeGroups.forEach((g, idx) => {
+        const isCitrate = g.tube.includes('תכלת') || g.tests.some(t => t.includes('קרישה'));
+        html += `
+          <div class="rack-slot group" data-tube-idx="${idx}" onclick="toggleTubeCollected(${idx})" title="לחצי לסימון שאיבה הושלמה">
+            <div class="rack-slot-check">✓</div>
+            <span class="text-[10px] font-black text-maccabi-navy bg-white px-2 py-0.5 rounded-full mb-2 shadow-2xs border border-slate-200">
+              שלב ${idx + 1}
+            </span>
+            <div class="vac-tube my-1" title="${g.tube}">
+              <div class="vac-cap" style="background-color: ${g.tubeCap || g.tubeColor};"></div>
+              <div class="vac-body">
+                ${isCitrate ? '<div class="vac-fill-line" title="קו סימון 90%-100%"></div>' : ''}
+                <div class="vac-barcode"><div class="vac-barcode-line"></div><div class="vac-barcode-line"></div><div class="vac-barcode-line"></div></div>
+                <div class="vac-liquid" style="height: ${isCitrate ? '75%' : '65%'}; background-color: ${g.tubeColor};"></div>
+              </div>
+            </div>
+            <div class="rack-hole"></div>
+            <div class="text-[11px] font-extrabold text-slate-900 mt-2 text-center truncate max-w-[90px]" title="${g.tube}">
+              ${g.tube.split(' ')[0]}
+            </div>
+            <div class="text-[9px] text-maccabi-primary font-bold text-center">1 מבחנה</div>
+          </div>
+        `;
+      });
+
+      if (nonBloodTests.length > 0) {
+        nonBloodTests.forEach(nb => {
+          html += `
+            <div class="rack-slot bg-gradient-to-b from-amber-50 to-amber-100 border-amber-300">
+              <span class="text-[10px] font-black text-amber-900 bg-white px-2 py-0.5 rounded-full mb-2 shadow-2xs border border-amber-200">
+                דגימה
+              </span>
+              <div class="w-8 h-12 rounded-lg bg-amber-200/80 border border-amber-400 flex items-center justify-center text-amber-800 my-1">
+                <i data-lucide="box" class="w-5 h-5"></i>
+              </div>
+              <div class="rack-hole bg-amber-700"></div>
+              <div class="text-[10px] font-extrabold text-amber-950 mt-2 text-center truncate max-w-[90px]" title="${nb.name}">
+                ${nb.specimenName}
+              </div>
+              <div class="text-[9px] text-amber-700 font-bold text-center">בנפרד</div>
+            </div>
+          `;
+        });
+      }
+
+      html += `
+          </div>
+        </div>
+
+        <!-- Step 2: Exact Order of Draw (Station by station) -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-maccabi-navy text-white flex items-center justify-center font-black text-xs">2</span>
+              <h4 class="font-extrabold text-sm text-slate-900">סדר שאיבת המבחנות המדויק (Order of Draw):</h4>
+            </div>
+            <span class="text-[11px] text-slate-500 font-medium">למניעת זיהום צולב של תוספים ונוגדי קרישה</span>
+          </div>
+      `;
+
+      if (tubeGroups.length > 0) {
+        tubeGroups.forEach((g, idx) => {
+          const isCitrate = g.tube.includes('תכלת') || g.tests.some(t => t.includes('קרישה'));
+          html += `
+            <div class="tube-step-card p-3.5 rounded-xl border border-slate-200 bg-white hover:border-maccabi-primary transition shadow-2xs cursor-pointer" data-tube-idx="${idx}" onclick="toggleTubeCollected(${idx})">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+                <div class="flex items-center gap-3">
+                  <span class="w-7 h-7 rounded-xl bg-maccabi-blue text-white font-black text-sm flex items-center justify-center shadow-xs">
+                    ${idx + 1}
+                  </span>
+                  <div class="vac-tube flex-shrink-0">
+                    <div class="vac-cap" style="background-color: ${g.tubeCap || g.tubeColor}"></div>
+                    <div class="vac-body">
+                      ${isCitrate ? '<div class="vac-fill-line" title="קו מילוי 90-100%"></div>' : ''}
+                      <div class="vac-barcode"><div class="vac-barcode-line"></div><div class="vac-barcode-line"></div></div>
+                      <div class="vac-liquid" style="height: ${isCitrate ? '75%' : '65%'}; background-color: ${g.tubeColor}"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 class="font-extrabold text-sm text-slate-900">${g.tube}</h5>
+                    <span class="text-[11px] text-slate-500 font-medium">היפוך עדין: 5-8 פעמים מיד בתום השאיבה</span>
+                  </div>
+                </div>
+                <span class="tube-collected-badge text-[11px] font-bold bg-sky-50 text-maccabi-primary border border-sky-200 px-2.5 py-0.5 rounded-md">
+                  מבחנה מס' ${idx + 1}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs pt-1">
+                <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                  <span class="font-bold text-slate-700 block mb-0.5">בדיקות הנכללות במבחנה זו:</span>
+                  <span class="text-maccabi-blue font-bold">${g.tests.join(' • ')}</span>
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                  <span class="font-bold text-slate-700 block mb-0.5">הנחיה בזמן הלקיחה:</span>
+                  <span class="text-slate-800 font-medium">${g.duringInstructions || 'ערבוב מיידי למניעת קרישי מיקרו'}</span>
+                </div>
+              </div>
+
+              ${g.dangerAlert ? `
+                <div class="mt-2 text-[11px] bg-red-50 border border-red-200 text-red-900 p-2 rounded-lg flex items-center gap-1.5 font-bold">
+                  <i data-lucide="alert-triangle" class="w-4 h-4 text-red-600 flex-shrink-0"></i>
+                  <span>${g.dangerAlert}</span>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        });
+      } else {
+        html += '<p class="text-slate-500 text-xs py-2">לא נבחרו בדיקות דם עבור מטופל זה.</p>';
+      }
+
+      html += `</div>`;
+
+      // Step 3: Post-Draw Handling (Centrifuge, Cooling, Light)
+      html += `
+        <div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-xs">3</span>
+            <h4 class="font-extrabold text-sm text-emerald-950">טיפול פרה-אנליטי בדגימה לאחר הלקיחה:</h4>
+          </div>
+          <div class="space-y-1.5 text-xs text-slate-700">
+      `;
+
+      selectedTests.forEach(t => {
+        html += `
+          <div class="flex items-start gap-2 bg-white/80 p-2 rounded-lg border border-emerald-100">
+            <span class="font-bold text-slate-900 w-44 flex-shrink-0">• ${t.name}:</span>
+            <span class="text-slate-700 font-medium">${t.afterInstructions}</span>
+          </div>
+        `;
+      });
+
+      html += `
+          </div>
+        </div>
+      `;
+
+      contentEl.innerHTML = html;
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function toggleTubeCollected(idx) {
+      if (collectedTubeIndices.has(idx)) {
+        collectedTubeIndices.delete(idx);
+      } else {
+        collectedTubeIndices.add(idx);
+        playMedicalSound('success');
+      }
+      updateTubeCollectionUI();
+    }
+
+    function updateTubeCollectionUI() {
+      const totalTubes = document.querySelectorAll('.rack-slot[data-tube-idx]').length;
+      document.querySelectorAll('.rack-slot[data-tube-idx]').forEach(slot => {
+        const idx = parseInt(slot.getAttribute('data-tube-idx'), 10);
+        if (collectedTubeIndices.has(idx)) {
+          slot.classList.add('collected');
+        } else {
+          slot.classList.remove('collected');
+        }
+      });
+
+      document.querySelectorAll('.tube-step-card[data-tube-idx]').forEach(card => {
+        const idx = parseInt(card.getAttribute('data-tube-idx'), 10);
+        if (collectedTubeIndices.has(idx)) {
+          card.classList.add('bg-emerald-50/70', 'border-emerald-400');
+          const badge = card.querySelector('.tube-collected-badge');
+          if (badge) {
+            badge.innerText = "נשאב בהצלחה ✓";
+            badge.className = "tube-collected-badge text-[11px] font-black bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-0.5 rounded-md";
+          }
+        } else {
+          card.classList.remove('bg-emerald-50/70', 'border-emerald-400');
+          const badge = card.querySelector('.tube-collected-badge');
+          if (badge) {
+            badge.innerText = `מבחנה מס' ${idx + 1}`;
+            badge.className = "tube-collected-badge text-[11px] font-bold bg-sky-50 text-maccabi-primary border border-sky-200 px-2.5 py-0.5 rounded-md";
+          }
+        }
+      });
+
+      const collectedCount = collectedTubeIndices.size;
+      const statusEl = document.getElementById('rackCompletionStatus');
+      if (statusEl) {
+        if (collectedCount === totalTubes && totalTubes > 0) {
+          statusEl.className = "text-xs bg-emerald-100 text-emerald-900 border border-emerald-300 font-black px-3 py-1 rounded-xl shadow-2xs flex items-center gap-1.5 animate-bounce";
+          statusEl.innerHTML = '<i data-lucide="check-check" class="w-3.5 h-3.5 text-emerald-600"></i> כל המבחנות נשאבו בהצלחה!';
+        } else {
+          statusEl.className = "text-xs bg-sky-100 text-maccabi-navy border border-sky-200 font-extrabold px-3 py-1 rounded-xl shadow-2xs";
+          statusEl.innerText = `${collectedCount} מתוך ${totalTubes} מבחנות נשאבו`;
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function closeProtocolExecutionModal() {
+      document.getElementById('protocolExecutionModal').classList.add('hidden');
+    }
+
+    function confirmCollectionFromModal() {
+      closeProtocolExecutionModal();
+      markAllCompletedSuccessfully();
+    }
+
+    function markAllCompletedSuccessfully() {
+      const patient = PATIENTS[currentPatientIndex];
+      alert(`פעולת הלקיחה עבור ${patient.name} אושרה בהצלחה!\nתוויות ברקוד נשלחו להדפסה, וההנחיות עודכנו בבוסה נובה.`);
+    }
+
+    // -------------------------------------------------------------
+    // VIEW MODES & RESPONSIVE PANEL TOGGLES
+    // -------------------------------------------------------------
+    let currentViewMode = 'all';
+
+    function setViewMode(mode) {
+      currentViewMode = mode;
+      const bn = document.getElementById('bossaNovaPanel');
+      const drawer = document.getElementById('actionDrawer');
+      const bnBtn = document.getElementById('bossaNovaToggleBtn');
+      const bnText = document.getElementById('bossaToggleText');
+      const drawerBtn = document.getElementById('actionDrawerToggleBtn');
+      const drawerText = document.getElementById('actionDrawerToggleText');
+
+      ['all', 'split', 'ai'].forEach(m => {
+        const btn = document.getElementById(`viewModeBtn-${m}`);
+        if (btn) {
+          if (m === mode) {
+            btn.className = "px-2.5 py-1 rounded-lg font-bold bg-white text-maccabi-blue shadow-2xs transition flex items-center gap-1";
+          } else {
+            btn.className = "px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1";
+          }
+        }
+      });
+
+      if (mode === 'all') {
+        bn.classList.remove('hidden');
+        drawer.classList.remove('hidden');
+        if (bnText) bnText.innerText = "הסתר בוסה נובה";
+        if (bnBtn) bnBtn.classList.add('bg-sky-50', 'border-sky-300', 'text-maccabi-blue');
+        if (drawerText) drawerText.innerText = "הסתר פאנל פעולה";
+        if (drawerBtn) drawerBtn.classList.add('bg-sky-50', 'border-sky-300', 'text-maccabi-blue');
+      } else if (mode === 'split') { // Bossa Nova + AI Center (hide right drawer)
+        bn.classList.remove('hidden');
+        drawer.classList.add('hidden');
+        if (bnText) bnText.innerText = "הסתר בוסה נובה";
+        if (bnBtn) bnBtn.classList.add('bg-sky-50', 'border-sky-300', 'text-maccabi-blue');
+        if (drawerText) drawerText.innerText = "הצג פאנל פעולה";
+        if (drawerBtn) drawerBtn.classList.remove('bg-sky-50', 'border-sky-300', 'text-maccabi-blue');
+      } else if (mode === 'ai') { // AI Center + Action Drawer (hide Bossa Nova)
+        bn.classList.add('hidden');
+        drawer.classList.remove('hidden');
+        if (bnText) bnText.innerText = "הצג בוסה נובה";
+        if (bnBtn) bnBtn.classList.remove('bg-sky-50', 'border-sky-300', 'text-maccabi-blue');
+        if (drawerText) drawerText.innerText = "הסתר פאנל פעולה";
+        if (drawerBtn) drawerBtn.classList.add('bg-sky-50', 'border-sky-300', 'text-maccabi-blue');
+      }
+
+      lucide.createIcons();
+    }
+
+    function toggleBossaNovaPanel() {
+      const panel = document.getElementById('bossaNovaPanel');
+      const text = document.getElementById('bossaToggleText');
+      const btn = document.getElementById('bossaNovaToggleBtn');
+      if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        text.innerText = "הסתר בוסה נובה";
+        btn.classList.add('bg-sky-50', 'border-sky-300', 'text-maccabi-blue');
+      } else {
+        panel.classList.add('hidden');
+        text.innerText = "הצג בוסה נובה";
+        btn.classList.remove('bg-sky-50', 'border-sky-300', 'text-maccabi-blue');
+      }
+      lucide.createIcons();
+    }
+
+    function toggleActionDrawer() {
+      const drawer = document.getElementById('actionDrawer');
+      const text = document.getElementById('actionDrawerToggleText');
+      const btn = document.getElementById('actionDrawerToggleBtn');
+      if (drawer.classList.contains('hidden')) {
+        drawer.classList.remove('hidden');
+        if (text) text.innerText = "הסתר פאנל פעולה";
+        if (btn) btn.classList.add('bg-sky-50', 'border-sky-300', 'text-maccabi-blue');
+      } else {
+        drawer.classList.add('hidden');
+        if (text) text.innerText = "הצג פאנל פעולה";
+        if (btn) btn.classList.remove('bg-sky-50', 'border-sky-300', 'text-maccabi-blue');
+      }
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------
+    // ALFON AI CHAT ASSISTANT MODAL
+    // -------------------------------------------------------------
+    function openAlfonChatModal() {
+      document.getElementById('alfonModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeAlfonChatModal() {
+      document.getElementById('alfonModal').classList.add('hidden');
+    }
+
+    function renderAlfonQuickQuestions() {
+      const container = document.getElementById('alfonQuickQuestions');
+      if (!container) return;
+      container.innerHTML = '';
+
+      let questions = [];
+      if (currentPatientIndex === 0) { // Danny
+        questions = [
+          "האם עישון הבוקר פוסל תבחין נשיפה להליקובקטר?",
+          "מדוע דחינו את איסוף הצואה למסירה בבית?",
+          "האם שתיית מים מותרת לפני בדיקת סוכר ושומנים?",
+          "למה ספירת דם ו-HbA1c אינן מחייבות צום?"
+        ];
+      } else if (currentPatientIndex === 1) { // Miriam
+        questions = [
+          "מדוע מבחנת ACTH חייבת להיות בקרח מיד?",
+          "מה הכלל לגבי שעת היקיצה בבדיקת קורטיזול 8:00?",
+          "למה בילירובין חייב הגנה מאור ועטיפת אלומיניום?",
+          "מה ההנחיה של סקר רמון לדם סמוי בצואה מעל גיל 50?"
+        ];
+      } else if (currentPatientIndex === 2) { // Yossi
+        questions = [
+          "המטופל שתה קפה ממותק: מדוע לקחת HbA1c ולדחות גלוקוז בצום?",
+          "כיצד המערכת מונעת אבחון שגוי של סוכרת?",
+          "כיצד בוסה נובה שומרת את ההפניות הדחויות למועד אחר?"
+        ];
+      } else if (currentPatientIndex === 3) { // Noa
+        questions = [
+          "מה היחס התקני במבחנת קרישה תכלת וכיצד מונעים פסילה?",
+          "מה ההנחיות למטופלת במהלך שעת ההמתנה של GCT 50g?",
+          "איך מבצעים איסוף שתן סטרילי באמצע זרם בהריון?"
+        ];
+      } else if (currentPatientIndex === 4) { // Itai
+        questions = [
+          "מדוע חובה לצרוך גלוטן לפני בדיקת סקר צליאק בילדים?",
+          "איך עובד משטח סטרפ A מהיר בקליניקה תוך 5 דקות?",
+          "כיצד איחוד מבחנות מונע דקירה כפולה בילדים?"
+        ];
+      }
+
+      questions.forEach(q => {
+        const btn = document.createElement('button');
+        btn.className = "bg-white border border-slate-200 hover:border-maccabi-primary px-2.5 py-1 rounded-lg text-slate-700 hover:text-maccabi-blue transition text-[11px] font-medium shadow-2xs text-right";
+        btn.innerText = q;
+        btn.onclick = () => askAlfon(q);
+        container.appendChild(btn);
+      });
+    }
+
+    function askAlfon(question) {
+      document.getElementById('alfonInputText').value = question;
+      sendAlfonUserMessage();
+    }
+
+    function sendAlfonUserMessage() {
+      const input = document.getElementById('alfonInputText');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const chatBox = document.getElementById('alfonChatMessages');
+
+      // Add user message
+      const userMsg = document.createElement('div');
+      userMsg.className = "flex justify-end";
+      userMsg.innerHTML = `
+        <div class="bg-maccabi-blue text-white p-3 rounded-2xl rounded-tl-none text-xs max-w-[85%] leading-relaxed shadow-xs">
+          ${text}
+        </div>
+      `;
+      chatBox.appendChild(userMsg);
+      input.value = '';
+
+      playMedicalSound('pop');
+
+      // AI Response generator
+      setTimeout(() => {
+        let reply = "על פי נוהל אלפון בדיקות מכבי, הנחיות משרד הבריאות ותקן CLSI H3-A6:<br><br>";
+        const lower = text.toLowerCase();
+
+        if (lower.includes("הליקובקטר") || lower.includes("עישון") || lower.includes("נשיפה")) {
+          reply += "<strong>תבחין נשיפה C13 להליקובקטר:</strong><br>עישון סיגריה, שתיית קפה, לעיסת מסטיק או צחצוח שיניים בבוקר הבדיקה גורמים להפרשת פחמן דו-חמצני ושיירי אוריאה בחלל הפה, ועלולים לגרום לתוצאה חיובית שגויה (False Positive).<br><br><strong>המלצת הסייען:</strong> יש לדחות את תבחין הנשיפה למועד אחר (בו המטופל יהיה בצום מלא של 6 שעות ללא עישון), אך <strong>ניתן לבצע כרגיל</strong> בדיקות דם ושתן שאינן מושפעות מעישון.";
+        } else if (lower.includes("acth")) {
+          reply += "<strong>הורמון ACTH (אדרנוקורטיקוטרופי):</strong><br>הורמון זה עובר פירוק אנזימטי (פרוטאוליטי) מואץ ביותר בטמפרטורת החדר. תוך דקות ספורות רמתו עלולה לרדת בחצי!<br><br><strong>נוהל מכבי מחייב:</strong><br>1. שימוש במבחנת EDTA (סגולה) שקוררה מראש באמבט קרח.<br>2. הנחת המבחנה מיד בתוך שקית קרח (Wet Ice) בעמדה.<br>3. סרכוז בצנטריפוגה מקוררת (4°C) תוך 15 דקות מקסימום.<br>4. הקפאת הפלזמה ב-20°C- עד לשינוע.";
+        } else if (lower.includes("קורטיזול") || lower.includes("יקיצה")) {
+          reply += "<strong>בדיקת קורטיזול 8:00 (בוקר):</strong><br>קורטיזול נתון למקצב יממתי (Circadian Rhythm) תלוי אור ויקיצה. הנוהל הרפואי מחייב שהמטופל יהיה <strong>ער לפחות שעתיים</strong> לפני הדקירה, ושאיבת הדם תתבצע בטווח 07:30 עד 09:00.<br>אם המטופל התעורר רק לפני 20 דקות - רמת הקורטיזול טרם הגיעה לשיאה הפיזיולוגי והתוצאה תהיה נמוכה שגויה.";
+        } else if (lower.includes("בילירובין") || lower.includes("אור") || lower.includes("אלומיניום")) {
+          reply += "<strong>בילירובין והגנה מאור:</strong><br>מולקולת הבילירובין רגישה מאוד לפוטו-דגרדציה (פירוק בחשיפה לאור פלואורסצנטי או שמש). חשיפה לאור עלולה להוריד את ריכוז הבילירובין ב-30% עד 50% תוך שעה בלבד!<br><strong>נוהל מכבי:</strong> עטיפת מבחנת הג'ל ברדיד אלומיניום (נייר כסף) אטום מיד לאחר הלקיחה, או שימוש במבחנה חומה ענברית מוגנת אור.";
+        } else if (lower.includes("קפה") || lower.includes("סוכרת") || lower.includes("סוכר")) {
+          reply += "<strong>שתיית קפה ממותק ודילמת הצום:</strong><br>שתיית קפה עם סוכר או חלב מקפיצה את הגלוקוז והטריגליצרידים בדם. ביצוע בדיקת סוכר בצום במצב זה יוביל לקריאת סוכר גבוהה, שתתועד בתיק הרפואי ועלולה להביא ל<strong>אבחון שגוי של סוכרת (False Positive)</strong> ומתן טיפול תרופתי מיותר.<br><br><strong>הפתרון החכם של מעבדה AI:</strong> ביצוע פיצול חכם - ביצוע ספירת דם ו-HbA1c שאינם תלויים בצום כעת, ודחיית הגלוקוז והשומנים בבוסה נובה מבלי שהרופא יצטרך להוציא הפניה מחדש!";
+        } else if (lower.includes("קרישה") || lower.includes("תכלת") || lower.includes("ציטראט") || lower.includes("סימון")) {
+          reply += "<strong>מבחנת קרישה תכלת (Sodium Citrate):</strong><br>1. <strong>יחס דם/נוגד קרישה:</strong> המבחנה מכילה נפח קבוע של נתרן ציטראט 3.2%. חובה שרמת הדם תגיע בדיוק ל<strong>קו הסימון (90%-100%)</strong>. תת-מילוי יוביל לעודף נוגד קרישה והארכה שגויה של ה-PT/INR!<br>2. <strong>סדר לקיחה:</strong> נלקחת שנייה (אחרי תרבית דם ולפני מבחנות סרום עם אקטיבטורים).<br>3. <strong>שימוש בפרפרית:</strong> חובה לשאוב תחילה מבחנת ניקוז קצרה (Discard Tube) כדי למלא את האוויר בצינורית הפרפרית.";
+        } else if (lower.includes("gct") || lower.includes("הריון") || lower.includes("העמסת")) {
+          reply += "<strong>סקר סוכרת הריון (GCT 50g):</strong><br>1. אין צורך בצום מקדים.<br>2. המטופלת שותה תמיסה של 50 גרם סוכר ענבים בתוך מספר דקות (מומלץ לקרר ולהוסיף לימון למניעת בחילה).<br>3. <strong>הקפדה קריטית:</strong> יש לדקור בדיוק כעבור 60 דקות מתום השתייה! הקדמה או איחור פוסלים את הבדיקה.<br>4. במהלך השעה: מנוחה מוחלטת בישיבה, ללא עישון, אכילה או שתייה מלבד שלוקי מים קטנים.";
+        } else if (lower.includes("צליאק") || lower.includes("גלוטן")) {
+          reply += "<strong>סקר צליאק (Anti-tTG / Endomysial):</strong><br>הנוגדנים מיוצרים ע\"י מערכת החיסון <strong>רק כתגובה לחשיפה לגלוטן</strong>. אם הילד או המטופל החל בדיאטה ללא גלוטן לפני הבדיקה - רמת הנוגדנים תצנח לרמה תקינה, והבדיקה תצא שלילית שגויה (False Negative), מה שימנע אבחון של המחלה.<br>נוהל: יש לוודא תזונה המכילה גלוטן לפחות 4-6 שבועות ברציפות לפני ביצוע הבדיקה.";
+        } else if (lower.includes("סטרפ") || lower.includes("strep")) {
+          reply += "<strong>משטח סטרפ A מהיר (Rapid Strep A):</strong><br>ערכת אבחון מהירה בקליניקה המבוססת על אימונוכרומטוגרפיה. תוך 5 דקות מתקבלת תוצאה בדיוק של מעל 95%.<br>יתרון קליני עצום: אם הבדיקה חיובית - הילד מקבל מרשם לאנטיביוטיקה במקום, נמנע סבל ומניעת סיבוכים (קדחת שיגרונית). אם הבדיקה שלילית - נמנע מתן אנטיביוטיקה מיותרת!";
+        } else if (lower.includes("מים") || lower.includes("צום")) {
+          reply += "<strong>שתיית מים בבדיקות צום:</strong><br>בבדיקות דם שגרתיות בצום (גלוקוז, שומנים, כימיה), שתיית מים רגילים מותרת ומומלצת! שתיית מים מונעת המוקונסנטרציה (ריכוז יתר של הדם עקב התייבשות) ומקלה על הוורידים.<br>חל איסור על שתיית קפה (אפילו שחור ללא סוכר), תה, מיצים, סודה בטעמים או לעיסת מסטיק.";
+        } else {
+          reply += "שאילתתך נבדקה מול מאגר נוהלי המעבדה של מכבי. תוכלי למצוא את ההנחיות המדויקות לכל שלב (לפני הדקירה, בזמן השאיבה ואחריה) בלשונית 'הנחיות מפורטות' או ע\"י לחיצה על כפתור 'הנחיות' בשורת הבדיקה בטבלה.";
+        }
+
+        const aiMsg = document.createElement('div');
+        aiMsg.className = "flex gap-2.5 items-start";
+        aiMsg.innerHTML = `
+          <div class="w-7 h-7 rounded-full bg-maccabi-blue text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-2xs">AI</div>
+          <div class="bg-white p-3 rounded-2xl rounded-tr-none border border-slate-200 text-slate-700 shadow-xs max-w-[90%] leading-relaxed text-xs">
+            ${reply}
+          </div>
+        `;
+        chatBox.appendChild(aiMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        playMedicalSound('pop');
+        lucide.createIcons();
+      }, 400);
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // -------------------------------------------------------------
+    // PRINT & PATIENT SUMMARY MODAL
+    // -------------------------------------------------------------
+    function openPrintSummaryModal() {
+      const patient = PATIENTS[currentPatientIndex];
+      const container = document.getElementById('printSummaryContent');
+
+      const todayTests = patient.tests.filter(t => selectedTestCodes.has(t.code));
+      const deferredTests = patient.tests.filter(t => !selectedTestCodes.has(t.code));
+
+      let html = `
+        <div class="border-b border-slate-200 pb-3 flex justify-between items-center">
+          <div>
+            <h2 class="font-black text-lg text-maccabi-blue">מכבי שירותי בריאות - סיכום ביקור מעבדה</h2>
+            <div class="text-slate-600 font-medium">שם המטופל: <strong>${patient.name}</strong> | ת.ז: ${patient.tz}</div>
+          </div>
+          <div class="text-left text-slate-400">
+            <div>תאריך: ${new Date().toLocaleDateString('he-IL')}</div>
+            <div>מרפאה: ${patient.clinic}</div>
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <h3 class="font-extrabold text-sm text-emerald-800 flex items-center gap-1.5">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>בדיקות שבוצעו היום (${todayTests.length}):</span>
+          </h3>
+          <ul class="list-disc list-inside space-y-1 text-slate-700 pr-2">
+            ${todayTests.map(t => `<li><strong>${t.name}</strong> (${t.specimenName}) - ${t.tube}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+
+      if (deferredTests.length > 0) {
+        html += `
+          <div class="space-y-3 pt-4 border-t border-slate-200">
+            <h3 class="font-extrabold text-sm text-amber-800 flex items-center gap-1.5">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              <span>הנחיות להמשך - בדיקות למועד עתידי או איסוף בבית (${deferredTests.length}):</span>
+            </h3>
+            <div class="space-y-2">
+              ${deferredTests.map(t => `
+                <div class="p-2.5 rounded-lg bg-amber-50/70 border border-amber-200">
+                  <div class="font-bold text-amber-950">${t.name} (${t.specimenName})</div>
+                  <div class="text-slate-700 mt-0.5">${t.notes}</div>
+                  <div class="text-[11px] text-amber-800 font-semibold mt-1">הנחיה למטופל: ${t.beforeInstructions}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      html += `
+        <div class="p-3 bg-slate-50 rounded-xl text-[11px] text-slate-500 border border-slate-200 mt-4">
+          תוצאות הבדיקות שנלקחו יופיעו באתר מכבי Online ובאפליקציה בתוך 24-48 שעות.
+        </div>
+      `;
+
+      container.innerHTML = html;
+      document.getElementById('printSummaryModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closePrintSummaryModal() {
+      document.getElementById('printSummaryModal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
