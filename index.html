@@ -1470,61 +1470,130 @@
     </div>
   </div>
 
+  <!-- MODAL: BACK OFFICE LOGIN (אימות הרשאת מנהלת מעבדה: admin / admin) -->
+  <div id="backOfficeLoginModal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-indigo-300 modal-pop-in relative">
+      
+      <!-- Login Header -->
+      <div class="p-5 bg-gradient-to-r from-slate-900 via-indigo-950 to-maccabi-navy text-white text-center relative">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-500/25 border border-indigo-400/30 flex items-center justify-center text-white text-2xl mx-auto shadow-inner mb-2">
+          🔐
+        </div>
+        <h3 class="font-black text-lg">אימות הרשאת מנהלת מעבדה</h3>
+        <p class="text-xs text-indigo-200 mt-0.5">כניסה מאובטחת לפורטל ניהול נהלים וחוקים קליניים (בק-אופיס)</p>
+        <button onclick="closeBackOfficeLoginModal()" class="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition absolute left-3 top-3 cursor-pointer" title="סגור">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Login Form -->
+      <form onsubmit="event.preventDefault(); submitBackOfficeLogin();" class="p-6 space-y-4 text-xs">
+        <div>
+          <label class="block font-extrabold text-slate-700 mb-1.5" for="boLoginUsername">
+            שם משתמש:
+          </label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="boLoginUsername" value="admin" placeholder="הזן שם משתמש (admin)" class="w-full pr-9 pl-3 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-xs" required autocomplete="username">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-extrabold text-slate-700 mb-1.5" for="boLoginPassword">
+            סיסמה:
+          </label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2"></i>
+            <input type="password" id="boLoginPassword" value="admin" placeholder="הזן סיסמה (admin)" class="w-full pr-9 pl-3 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-xs" required autocomplete="current-password">
+          </div>
+        </div>
+
+        <!-- Hint Banner -->
+        <div class="p-2.5 rounded-xl bg-indigo-50/80 border border-indigo-200 text-[11px] text-indigo-900 flex items-center gap-2">
+          <i data-lucide="key" class="w-4 h-4 text-indigo-600 flex-shrink-0"></i>
+          <span>לצורך בדיקה/דמו: שם משתמש: <strong>admin</strong> | סיסמה: <strong>admin</strong></span>
+        </div>
+
+        <!-- Error Message Container -->
+        <div id="boLoginErrorMsg" class="hidden p-2.5 rounded-xl bg-red-50 border border-red-200 text-[11px] text-red-900 font-bold flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-red-600 flex-shrink-0"></i>
+          <span>שם משתמש או סיסמה שגויים. נא להזין admin / admin.</span>
+        </div>
+
+        <!-- Buttons -->
+        <div class="pt-2 flex items-center gap-2">
+          <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-indigo-900 to-maccabi-navy hover:from-slate-900 hover:to-indigo-900 text-white font-extrabold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+            <i data-lucide="log-in" class="w-4 h-4"></i>
+            <span>התחברות למערכת</span>
+          </button>
+          <button type="button" onclick="closeBackOfficeLoginModal()" class="px-4 py-2.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl transition cursor-pointer">
+            ביטול
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
   <!-- MODAL: CLINICAL BACK OFFICE / ADMIN RULES PORTAL (פורטל ניהול נהלים וחוקים קליניים - מעבדות מכבי) -->
   <div id="backOfficeModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 hidden flex items-center justify-center p-2 sm:p-4">
     <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full flex flex-col max-h-[94vh] overflow-hidden border border-indigo-200 modal-pop-in relative">
       
-      <!-- Back Office Header -->
-      <div class="p-4 sm:p-5 bg-gradient-to-r from-slate-900 via-indigo-950 to-maccabi-navy text-white flex flex-wrap items-center justify-between gap-3 shadow-md">
-        <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-white text-2xl shadow-inner">
+      <!-- Back Office Header (Clean 1-row layout with flex-shrink-0 to prevent any overlap) -->
+      <div class="p-3.5 sm:p-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-maccabi-navy text-white flex items-center justify-between gap-3 shadow-xs flex-shrink-0">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-white text-xl shadow-inner flex-shrink-0">
             ⚙️
           </div>
-          <div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <h2 class="font-black text-base sm:text-lg">פורטל ניהול נהלים וחוקים קליניים (בק-אופיס)</h2>
-              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <h2 class="font-black text-sm sm:text-base truncate">פורטל ניהול נהלים וחוקים קליניים (בק-אופיס)</h2>
+              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 flex-shrink-0">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
                 <span>מחובר ישירות ל-LIS מכבי</span>
               </span>
             </div>
-            <p class="text-xs text-indigo-200 mt-0.5">שליטה ארצית בנהלי לקיחה, מנוע חוקי תשאול, קטלוג בדיקות, טיימרים והפצת עדכונים למרפאות</p>
+            <p class="text-[11px] text-indigo-200 mt-0.5 hidden md:block truncate">שליטה ארצית בנהלי לקיחה, מנוע חוקי תשאול, קטלוג בדיקות, טיימרים והפצת עדכונים למרפאות</p>
           </div>
         </div>
         
-        <div class="flex items-center gap-2">
-          <span class="hidden md:flex items-center gap-1.5 text-xs bg-white/10 px-3 py-1.5 rounded-xl border border-white/15 text-indigo-100 font-semibold">
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span class="hidden md:flex items-center gap-1.5 text-xs bg-white/10 px-2.5 py-1 rounded-xl border border-white/15 text-indigo-100 font-semibold">
             <i data-lucide="user-check" class="w-3.5 h-3.5 text-emerald-400"></i>
-            <span>הרשאה: מנהלת איכות ארצית</span>
+            <span>מנהלת איכות ארצית</span>
           </span>
-          <button onclick="closeBackOfficeModal()" class="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition cursor-pointer" title="סגור בק-אופיס">
+          <button onclick="logoutBackOffice()" class="text-xs bg-white/10 hover:bg-white/20 text-rose-200 px-2.5 py-1 rounded-xl transition flex items-center gap-1 cursor-pointer" title="התנתק מבק-אופיס">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">התנתק</span>
+          </button>
+          <button onclick="closeBackOfficeModal()" class="text-white/80 hover:text-white p-1.5 rounded-xl hover:bg-white/10 transition cursor-pointer" title="סגור בק-אופיס">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
       </div>
 
-      <!-- Back Office Tabs Navigation Bar -->
-      <div class="bg-slate-50 border-b border-slate-200 px-4 sm:px-6 py-2 flex items-center justify-between gap-2 overflow-x-auto custom-scrollbar text-xs">
+      <!-- Back Office Tabs Navigation Bar (flex-shrink-0 and solid background) -->
+      <div class="bg-slate-100/95 border-b border-slate-200 px-4 sm:px-6 py-2 flex items-center justify-between gap-2 overflow-x-auto custom-scrollbar text-xs flex-shrink-0">
         <div class="flex items-center gap-1.5 sm:gap-2">
-          <button onclick="switchBackOfficeTab('rules')" id="boTabBtn-rules" class="px-3.5 py-1.5 rounded-xl font-bold bg-indigo-900 text-white shadow-2xs transition flex items-center gap-1.5 cursor-pointer">
+          <button onclick="switchBackOfficeTab('rules')" id="boTabBtn-rules" class="px-3 py-1.5 rounded-xl font-bold bg-indigo-900 text-white shadow-2xs transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
             <i data-lucide="filter" class="w-3.5 h-3.5"></i>
             <span>1. מנוע חוקי תשאול ואימות</span>
           </button>
-          <button onclick="switchBackOfficeTab('tests')" id="boTabBtn-tests" class="px-3.5 py-1.5 rounded-xl font-bold text-slate-700 bg-white hover:bg-indigo-50 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer">
+          <button onclick="switchBackOfficeTab('tests')" id="boTabBtn-tests" class="px-3 py-1.5 rounded-xl font-bold text-slate-700 bg-white hover:bg-indigo-50 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
             <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
             <span>2. קטלוג בדיקות והנחיות שינוע</span>
           </button>
-          <button onclick="switchBackOfficeTab('timers')" id="boTabBtn-timers" class="px-3.5 py-1.5 rounded-xl font-bold text-slate-700 bg-white hover:bg-indigo-50 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer">
+          <button onclick="switchBackOfficeTab('timers')" id="boTabBtn-timers" class="px-3 py-1.5 rounded-xl font-bold text-slate-700 bg-white hover:bg-indigo-50 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
             <i data-lucide="timer" class="w-3.5 h-3.5"></i>
             <span>3. טיימרים והתרעות בטיחות</span>
           </button>
-          <button onclick="switchBackOfficeTab('sync')" id="boTabBtn-sync" class="px-3.5 py-1.5 rounded-xl font-bold text-slate-700 bg-white hover:bg-indigo-50 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer">
+          <button onclick="switchBackOfficeTab('sync')" id="boTabBtn-sync" class="px-3 py-1.5 rounded-xl font-bold text-slate-700 bg-white hover:bg-indigo-50 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
             <span>4. סנכרון ארגוני ולוג עדכונים</span>
           </button>
         </div>
 
-        <div class="hidden lg:flex items-center gap-1.5 text-[11px] text-slate-500 font-semibold">
+        <div class="hidden lg:flex items-center gap-1.5 text-[11px] text-slate-500 font-semibold whitespace-nowrap">
           <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-500"></i>
           <span>שינויים נכנסים לתוקף מיידי בעמדות הלקיחה</span>
         </div>
@@ -3083,7 +3152,15 @@
       { code: "0520", name: "בילירובין (רגיש לאור)", tube: "צהובה (עטופה ברדיד אלומיניום)", inversions: "5 פעמים", clotTime: "30 דקות", temp: "חושך מוחלט / קירור", stability: "12 שעות" }
     ];
 
+    let isBackOfficeAuthenticated = false;
+
     function openBackOfficeModal() {
+      // Check if user is authenticated with admin / admin
+      if (!isBackOfficeAuthenticated) {
+        openBackOfficeLoginModal();
+        return;
+      }
+
       // Restore from localStorage if customized
       try {
         const savedRules = localStorage.getItem('maccabi_backoffice_rules');
@@ -3101,6 +3178,56 @@
 
       playMedicalSound('pop');
       lucide.createIcons();
+    }
+
+    function openBackOfficeLoginModal() {
+      const modal = document.getElementById('backOfficeLoginModal');
+      const err = document.getElementById('boLoginErrorMsg');
+      if (err) err.classList.add('hidden');
+      if (modal) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+          const pass = document.getElementById('boLoginPassword');
+          if (pass) pass.focus();
+        }, 120);
+      }
+      playMedicalSound('pop');
+      lucide.createIcons();
+    }
+
+    function closeBackOfficeLoginModal() {
+      const modal = document.getElementById('backOfficeLoginModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function submitBackOfficeLogin() {
+      const usernameInput = document.getElementById('boLoginUsername');
+      const passwordInput = document.getElementById('boLoginPassword');
+      const errorMsg = document.getElementById('boLoginErrorMsg');
+
+      const u = usernameInput ? usernameInput.value.trim().toLowerCase() : '';
+      const p = passwordInput ? passwordInput.value.trim() : '';
+
+      if (u === 'admin' && p === 'admin') {
+        isBackOfficeAuthenticated = true;
+        closeBackOfficeLoginModal();
+        playMedicalSound('success');
+        openBackOfficeModal();
+      } else {
+        if (errorMsg) errorMsg.classList.remove('hidden');
+        playMedicalSound('pop');
+        if (passwordInput) {
+          passwordInput.select();
+          passwordInput.focus();
+        }
+      }
+    }
+
+    function logoutBackOffice() {
+      isBackOfficeAuthenticated = false;
+      closeBackOfficeModal();
+      playMedicalSound('pop');
+      alert('התנתקת בהצלחה מפורטל ניהול הנהלים (בק-אופיס).');
     }
 
     function closeBackOfficeModal() {
