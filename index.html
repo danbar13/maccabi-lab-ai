@@ -283,9 +283,10 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-  <!-- TOP NAV BAR: Maccabi Brand & Patient Switcher -->
+  <!-- TOP NAV BAR: Maccabi Brand, Patient Switcher & Collapsible View Controls -->
   <header class="bg-white border-b-2 border-sky-400/80 sticky top-0 z-30 shadow-md shadow-sky-950/5">
-    <div class="max-w-[1780px] mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-4">
+    <!-- Top Row: Branding, Patient Switcher, and Row 1 Toggle -->
+    <div class="max-w-[1780px] mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-3">
       
       <!-- Maccabi Branding & App Title -->
       <div class="flex items-center gap-3.5">
@@ -345,49 +346,80 @@
         </div>
       </div>
 
-      <!-- Actions & Quick Help -->
+      <!-- Left: Collapsible Toggle Button for View Controls Row -->
       <div class="flex items-center gap-2">
-        <div class="hidden md:flex items-center rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs">
-          <button onclick="setViewMode('all')" id="viewModeBtn-all" class="px-2.5 py-1 rounded-lg font-bold bg-white text-maccabi-blue shadow-2xs transition flex items-center gap-1">
-            <i data-lucide="columns-3" class="w-3.5 h-3.5"></i>
-            <span>3 חלונות</span>
-          </button>
-          <button onclick="setViewMode('split')" id="viewModeBtn-split" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1">
-            <i data-lucide="split" class="w-3.5 h-3.5"></i>
-            <span>בוסה נובה + AI</span>
-          </button>
-          <button onclick="setViewMode('ai')" id="viewModeBtn-ai" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1">
-            <i data-lucide="layout-panel-left" class="w-3.5 h-3.5"></i>
-            <span>סייען בלבד</span>
-          </button>
-        </div>
-
-        <button onclick="toggleAudioFeedback()" id="audioToggleBtn" class="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition shadow-2xs" title="צלילי משוב קוליים בעת פעולות">
-          <i data-lucide="volume-2" id="audioToggleIcon" class="w-4 h-4 text-emerald-600"></i>
-          <span id="audioToggleText">צליל פעיל</span>
-        </button>
-        <button onclick="toggleFullScreen()" id="fullscreenBtn" class="hidden sm:flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 transition" title="מסך מלא לתצוגת עמדה">
-          <i data-lucide="maximize" class="w-4 h-4 text-slate-500"></i>
-        </button>
-        <button onclick="toggleBossaNovaPanel()" id="bossaNovaToggleBtn" class="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50 text-maccabi-blue hover:bg-sky-100 transition">
-          <i data-lucide="sidebar" class="w-4 h-4 text-maccabi-primary"></i>
-          <span id="bossaToggleText">הסתר בוסה נובה</span>
-        </button>
-        <button onclick="toggleActionDrawer()" id="actionDrawerToggleBtn" class="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 transition" title="כווץ/הרחב פאנל סדר מבחנות">
-          <i data-lucide="clipboard-list" class="w-4 h-4 text-slate-500"></i>
-          <span id="actionDrawerToggleText">פאנל פעולה</span>
-        </button>
-        <button onclick="openAlfonChatModal()" class="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-gradient-to-r from-maccabi-navy to-maccabi-blue hover:from-maccabi-dark hover:to-maccabi-navy text-white shadow-xs hover:shadow-md transition">
-          <i data-lucide="sparkles" class="w-4 h-4 text-sky-300"></i>
-          <span>שאל את אלפון AI</span>
+        <button onclick="toggleViewControlsRow()" id="toggleViewControlsBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-300 bg-sky-50/90 hover:bg-sky-100 text-maccabi-blue text-xs font-bold transition shadow-2xs cursor-pointer" title="כווץ / הרחב שורת בחירת תצוגה ובקרות">
+          <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-maccabi-primary"></i>
+          <span class="text-[11px] font-bold text-slate-700" id="viewControlsToggleLabel">תצוגה ובקרות</span>
+          <span id="currentViewBadge" class="text-[10px] bg-white border border-sky-300 text-maccabi-navy px-1.5 py-0.2 rounded font-black shadow-2xs">3 חלונות</span>
+          <i data-lucide="chevron-up" id="viewControlsChevron" class="w-4 h-4 text-maccabi-blue transition-transform duration-200"></i>
         </button>
       </div>
 
     </div>
+
+    <!-- Row 2: שורת בחירת התצוגה והבקרות (Collapsible) -->
+    <div id="viewControlsRow" class="border-t border-sky-100 bg-slate-50/90 px-4 py-1.5 transition-all duration-300">
+      <div class="max-w-[1780px] mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+        
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-extrabold text-slate-600 flex items-center gap-1 pl-1">
+            <i data-lucide="columns-3" class="w-3.5 h-3.5 text-maccabi-primary"></i>
+            <span>בחירת תצוגה:</span>
+          </span>
+
+          <!-- View Mode Selector -->
+          <div class="flex items-center rounded-xl bg-white p-1 border border-slate-200 shadow-2xs text-xs">
+            <button onclick="setViewMode('all')" id="viewModeBtn-all" class="px-2.5 py-1 rounded-lg font-bold bg-white text-maccabi-blue shadow-2xs transition flex items-center gap-1">
+              <i data-lucide="columns-3" class="w-3.5 h-3.5"></i>
+              <span>3 חלונות</span>
+            </button>
+            <button onclick="setViewMode('split')" id="viewModeBtn-split" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1">
+              <i data-lucide="split" class="w-3.5 h-3.5"></i>
+              <span>בוסה נובה + AI</span>
+            </button>
+            <button onclick="setViewMode('ai')" id="viewModeBtn-ai" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1">
+              <i data-lucide="layout-panel-left" class="w-3.5 h-3.5"></i>
+              <span>סייען בלבד</span>
+            </button>
+          </div>
+
+          <div class="h-4 w-px bg-slate-300 mx-1 hidden sm:block"></div>
+
+          <!-- Action Buttons -->
+          <button onclick="toggleAudioFeedback()" id="audioToggleBtn" class="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition shadow-2xs" title="צלילי משוב קוליים בעת פעולות">
+            <i data-lucide="volume-2" id="audioToggleIcon" class="w-4 h-4 text-emerald-600"></i>
+            <span id="audioToggleText">צליל פעיל</span>
+          </button>
+          <button onclick="toggleFullScreen()" id="fullscreenBtn" class="hidden sm:flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition shadow-2xs" title="מסך מלא לתצוגת עמדה">
+            <i data-lucide="maximize" class="w-4 h-4 text-slate-500"></i>
+          </button>
+          <button onclick="toggleBossaNovaPanel()" id="bossaNovaToggleBtn" class="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50 text-maccabi-blue hover:bg-sky-100 transition shadow-2xs">
+            <i data-lucide="sidebar" class="w-4 h-4 text-maccabi-primary"></i>
+            <span id="bossaToggleText">הסתר בוסה נובה</span>
+          </button>
+          <button onclick="toggleActionDrawer()" id="actionDrawerToggleBtn" class="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition shadow-2xs" title="כווץ/הרחב פאנל סדר מבחנות">
+            <i data-lucide="clipboard-list" class="w-4 h-4 text-slate-500"></i>
+            <span id="actionDrawerToggleText">פאנל פעולה</span>
+          </button>
+          <button onclick="openAlfonChatModal()" class="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-gradient-to-r from-maccabi-navy to-maccabi-blue hover:from-maccabi-dark hover:to-maccabi-navy text-white shadow-xs hover:shadow-md transition">
+            <i data-lucide="sparkles" class="w-4 h-4 text-sky-300"></i>
+            <span>שאל את אלפון AI</span>
+          </button>
+        </div>
+
+        <!-- Small close arrow button on the far side -->
+        <button onclick="toggleViewControlsRow()" class="flex items-center gap-1 text-[11px] font-bold text-slate-500 hover:text-slate-800 px-2 py-1 rounded-lg hover:bg-slate-200/80 transition cursor-pointer" title="סגור שורת בחירת תצוגה">
+          <span>סגור שורת תצוגה</span>
+          <i data-lucide="chevron-up" class="w-3.5 h-3.5 text-slate-500"></i>
+        </button>
+
+      </div>
+    </div>
   </header>
 
-  <!-- UPGRADE ANNOUNCEMENT BANNER (Dismissible) -->
-  <div id="upgradeBanner" class="bg-gradient-to-r from-maccabi-navy via-maccabi-blue to-maccabi-primary text-white text-xs px-4 py-2 flex items-center justify-between shadow-xs border-b border-sky-400/20">
+  <!-- UPGRADE ANNOUNCEMENT BANNER (Dismissible, hidden by default to save vertical space) -->
+  <div id="upgradeBanner" style="display: none;" class="bg-gradient-to-r from-maccabi-navy via-maccabi-blue to-maccabi-primary text-white text-xs px-4 py-2 flex items-center justify-between shadow-xs border-b border-sky-400/20">
     <div class="flex items-center gap-2.5 flex-wrap">
       <span class="bg-emerald-500 text-white font-black px-2 py-0.5 rounded-md text-[10px] uppercase shadow-2xs">שודרג בהצלחה</span>
       <span class="font-medium text-[11px]">מעמד מבחנות שולחני ריאליסטי בפאנל הפעולה ובחלון המרוכז • צלילי משוב רפואיים (כפתור השתקה בסרגל) • טיימר 60 דק' להעמסת סוכר במקרה 4 • אלפון AI מותאם למקרה</span>
@@ -397,72 +429,100 @@
     </button>
   </div>
 
-  <!-- PATIENT HERO STRIP (Floating White Island) -->
-  <section class="max-w-[1780px] w-full mx-auto px-3 md:px-4 pt-3 pb-1">
-    <div class="bg-white rounded-2xl border-2 border-sky-300 shadow-md shadow-sky-950/10 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+  <!-- PATIENT HERO STRIP (Floating White Island - Collapsible) -->
+  <section class="max-w-[1780px] w-full mx-auto px-3 md:px-4 pt-2.5 pb-1" id="patientHeroSection">
+    <div class="bg-white rounded-2xl border-2 border-sky-300 shadow-md shadow-sky-950/10 px-4 py-2 transition-all duration-300 text-xs">
       
-      <div class="flex items-center gap-3.5 flex-wrap">
-        <!-- Patient ID & Avatar -->
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-100 to-sky-100 border-2 border-sky-200/80 flex items-center justify-center font-black text-maccabi-navy text-sm shadow-inner" id="pAvatar">
-            דל
-          </div>
-          <div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <h1 class="font-black text-base text-slate-900 tracking-tight" id="pName">דני לוי</h1>
-              <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold" id="pId">ת.ז 123456789</span>
-              <span class="text-slate-500 font-medium" id="pAgeGender">בן 39 (12/03/1985)</span>
-              <span class="inline-flex items-center gap-1 bg-emerald-100/80 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-[10px]">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block"></span>
-                <span>תור 42 בעמדה 3 (נוכח)</span>
-              </span>
+      <!-- EXPANDED FULL PATIENT DETAILS -->
+      <div id="patientStripBody" class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3.5 flex-wrap">
+          <!-- Patient ID & Avatar -->
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-100 to-sky-100 border-2 border-sky-200/80 flex items-center justify-center font-black text-maccabi-navy text-sm shadow-inner" id="pAvatar">
+              דל
             </div>
-            <div class="text-[11px] text-slate-500 flex items-center gap-2 mt-1 flex-wrap font-medium">
-              <span id="pClinic">סניף: מרכז רפואי בלפור ת"א</span>
-              <span>&bull;</span>
-              <span id="pDoc">רופא מפנה: ד"ר ישראלי רון</span>
-              <span>&bull;</span>
-              <span class="text-amber-800 font-bold bg-amber-50 border border-amber-200 px-2 py-0.2 rounded-md" id="pScenarioBadge">מקרה 1: הפניות מעורבות + צום</span>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <h1 class="font-black text-base text-slate-900 tracking-tight" id="pName">דני לוי</h1>
+                <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold" id="pId">ת.ז 123456789</span>
+                <span class="text-slate-500 font-medium" id="pAgeGender">בן 39 (12/03/1985)</span>
+                <span class="inline-flex items-center gap-1 bg-emerald-100/80 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-[10px]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block"></span>
+                  <span>תור 42 בעמדה 3 (נוכח)</span>
+                </span>
+              </div>
+              <div class="text-[11px] text-slate-500 flex items-center gap-2 mt-1 flex-wrap font-medium">
+                <span id="pClinic">סניף: מרכז רפואי בלפור ת"א</span>
+                <span>&bull;</span>
+                <span id="pDoc">רופא מפנה: ד"ר ישראלי רון</span>
+                <span>&bull;</span>
+                <span class="text-amber-800 font-bold bg-amber-50 border border-amber-200 px-2 py-0.2 rounded-md" id="pScenarioBadge">מקרה 1: הפניות מעורבות + צום</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clinical Dilemma Card (Demonstrating pre-analytical intelligence) -->
+          <div class="flex items-center gap-2.5 bg-gradient-to-r from-sky-50 to-indigo-50/50 border border-sky-200/90 text-sky-950 px-3.5 py-1.5 rounded-xl text-[11px] shadow-2xs max-w-xl">
+            <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-maccabi-navy to-maccabi-blue text-white flex items-center justify-center flex-shrink-0 shadow-2xs">
+              <i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-sky-300"></i>
+            </div>
+            <div>
+              <span class="font-black text-maccabi-navy">האתגר הקדם-אנליטי במקרה זה:</span>
+              <span id="pDilemmaText" class="font-medium text-slate-700 leading-snug">טוען נתוני מקרה...</span>
+            </div>
+          </div>
+
+          <!-- Ramon Preventive Alert -->
+          <div class="flex items-center gap-2 bg-gradient-to-r from-emerald-50 to-white border border-emerald-200 text-emerald-900 px-3 py-1.5 rounded-xl text-[11px] shadow-2xs">
+            <div class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            </div>
+            <div>
+              <span class="font-extrabold text-emerald-950">רפואה מונעת (רמון):</span>
+              <span id="ramonAlertText" class="font-medium text-emerald-900">אין בדיקות מונעות פתוחות לביקור זה</span>
             </div>
           </div>
         </div>
 
-        <!-- Clinical Dilemma Card (Demonstrating pre-analytical intelligence) -->
-        <div class="flex items-center gap-2.5 bg-gradient-to-r from-sky-50 to-indigo-50/50 border border-sky-200/90 text-sky-950 px-3.5 py-1.5 rounded-xl text-[11px] shadow-2xs max-w-xl">
-          <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-maccabi-navy to-maccabi-blue text-white flex items-center justify-center flex-shrink-0 shadow-2xs">
-            <i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-sky-300"></i>
+        <div class="flex items-center gap-2.5">
+          <!-- Quick Specimen Legend (Layer 1: Orientation) -->
+          <div class="flex items-center gap-2 bg-slate-50/80 border border-slate-200/80 px-3 py-1.5 rounded-2xl shadow-2xs">
+            <span class="text-[11px] font-extrabold text-slate-500 flex items-center gap-1 pl-1 border-l border-slate-200">
+              <i data-lucide="palette" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span>מקרא:</span>
+            </span>
+            <div class="flex items-center gap-1.5 text-[11px] font-bold">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-red-50 text-red-700 border border-red-200/70"><span class="w-2 h-2 rounded-full bg-red-600"></span>דם</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200/70"><span class="w-2 h-2 rounded-full bg-amber-500"></span>שתן</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-yellow-50 text-yellow-900 border border-yellow-300/70"><span class="w-2 h-2 rounded-full bg-yellow-800"></span>צואה</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200/70"><span class="w-2 h-2 rounded-full bg-blue-600"></span>נשיפה</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200/70"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>בקטריולוגיה</span>
+            </div>
           </div>
-          <div>
-            <span class="font-black text-maccabi-navy">האתגר הקדם-אנליטי במקרה זה:</span>
-            <span id="pDilemmaText" class="font-medium text-slate-700 leading-snug">טוען נתוני מקרה...</span>
-          </div>
+
+          <!-- Arrow button to collapse Patient Hero Strip -->
+          <button onclick="togglePatientStrip()" id="togglePatientStripBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-maccabi-blue text-xs font-bold transition shadow-2xs cursor-pointer" title="סגור שורת פרטי לקוח כדי לפנות מקום למסך">
+            <span class="text-[11px] text-slate-700">סגור שורת לקוח</span>
+            <i data-lucide="chevron-up" id="patientStripChevron" class="w-4 h-4 text-maccabi-blue transition-transform duration-200"></i>
+          </button>
         </div>
 
-        <!-- Ramon Preventive Alert -->
-        <div class="flex items-center gap-2 bg-gradient-to-r from-emerald-50 to-white border border-emerald-200 text-emerald-900 px-3 py-1.5 rounded-xl text-[11px] shadow-2xs">
-          <div class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
-            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-          </div>
-          <div>
-            <span class="font-extrabold text-emerald-950">רפואה מונעת (רמון):</span>
-            <span id="ramonAlertText" class="font-medium text-emerald-900">אין בדיקות מונעות פתוחות לביקור זה</span>
-          </div>
-        </div>
       </div>
 
-      <!-- Quick Specimen Legend (Layer 1: Orientation) -->
-      <div class="flex items-center gap-2 bg-slate-50/80 border border-slate-200/80 px-3 py-1.5 rounded-2xl shadow-2xs">
-        <span class="text-[11px] font-extrabold text-slate-500 flex items-center gap-1 pl-1 border-l border-slate-200">
-          <i data-lucide="palette" class="w-3.5 h-3.5 text-slate-400"></i>
-          <span>מקרא:</span>
-        </span>
-        <div class="flex items-center gap-1.5 text-[11px] font-bold">
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-red-50 text-red-700 border border-red-200/70"><span class="w-2 h-2 rounded-full bg-red-600"></span>דם</span>
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200/70"><span class="w-2 h-2 rounded-full bg-amber-500"></span>שתן</span>
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-yellow-50 text-yellow-900 border border-yellow-300/70"><span class="w-2 h-2 rounded-full bg-yellow-800"></span>צואה</span>
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200/70"><span class="w-2 h-2 rounded-full bg-blue-600"></span>נשיפה</span>
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200/70"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>בקטריולוגיה</span>
+      <!-- COLLAPSED MINI PATIENT BAR (Single compact line when closed) -->
+      <div id="patientStripMini" class="hidden items-center justify-between gap-3 w-full py-0.5">
+        <div class="flex items-center gap-2.5 flex-wrap overflow-hidden">
+          <span class="w-6 h-6 rounded-lg bg-maccabi-navy text-white text-xs font-black flex items-center justify-center shadow-2xs" id="miniAvatar">דל</span>
+          <span class="font-black text-slate-900 text-sm" id="miniName">דני לוי</span>
+          <span class="text-[11px] font-mono font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded" id="miniId">ת.ז 123456789</span>
+          <span class="text-[11px] text-slate-500 font-medium hidden sm:inline" id="miniClinic">סניף: מרכז רפואי בלפור ת"א</span>
+          <span class="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded font-bold" id="miniScenarioBadge">מקרה 1: הפניות מעורבות + צום</span>
+          <span class="text-[11px] text-slate-600 font-medium hidden md:inline truncate max-w-lg" id="miniDilemma">טוען נתונים...</span>
         </div>
+        <button onclick="togglePatientStrip()" class="flex items-center gap-1.5 text-xs font-bold text-maccabi-blue bg-sky-50 border border-sky-300 px-3 py-1 rounded-xl hover:bg-sky-100 transition shadow-2xs cursor-pointer" title="פתח שורת פרטי לקוח מלאה">
+          <span class="text-[11px]">פתח שורת לקוח</span>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-maccabi-blue"></i>
+        </button>
       </div>
 
     </div>
@@ -1839,6 +1899,17 @@
       renderPatientSelector();
       loadPatient(0);
       setViewMode('all');
+
+      // Restore saved collapse states from localStorage if previously toggled
+      try {
+        if (localStorage.getItem('maccabi_viewControls_collapsed') === 'true') {
+          toggleViewControlsRow(true);
+        }
+        if (localStorage.getItem('maccabi_patientStrip_collapsed') === 'true') {
+          togglePatientStrip(true);
+        }
+      } catch (e) {}
+
       lucide.createIcons();
     });
 
@@ -1852,7 +1923,7 @@
       PATIENTS.forEach((p, idx) => {
         const btn = document.createElement('button');
         const isActive = idx === currentPatientIndex;
-        btn.className = `px-3 py-1 text-xs rounded-xl font-bold transition-all flex items-center gap-1.5 shadow-2xs ${
+        btn.className = `px-3 py-1 text-xs rounded-xl font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer ${
           isActive 
             ? 'bg-gradient-to-r from-maccabi-navy to-maccabi-blue text-white shadow-xs' 
             : 'text-slate-700 bg-white hover:bg-sky-50 border border-slate-200/80 hover:border-sky-300'
@@ -1880,16 +1951,16 @@
         const btn = document.getElementById(`patientBtn-${i}`);
         if (btn) {
           if (i === idx) {
-            btn.className = 'px-3 py-1 text-xs rounded-xl font-bold bg-gradient-to-r from-maccabi-navy to-maccabi-blue text-white shadow-xs flex items-center gap-1.5 transition-all';
+            btn.className = 'px-3 py-1 text-xs rounded-xl font-bold bg-gradient-to-r from-maccabi-navy to-maccabi-blue text-white shadow-xs flex items-center gap-1.5 transition-all cursor-pointer';
             btn.querySelector('span').className = 'w-4 h-4 rounded-full flex items-center justify-center text-[10px] bg-white text-maccabi-navy font-black';
           } else {
-            btn.className = 'px-3 py-1 text-xs rounded-xl font-bold text-slate-700 bg-white hover:bg-sky-50 border border-slate-200/80 hover:border-sky-300 flex items-center gap-1.5 transition-all';
+            btn.className = 'px-3 py-1 text-xs rounded-xl font-bold text-slate-700 bg-white hover:bg-sky-50 border border-slate-200/80 hover:border-sky-300 flex items-center gap-1.5 transition-all cursor-pointer';
             btn.querySelector('span').className = 'w-4 h-4 rounded-full flex items-center justify-center text-[10px] bg-slate-100 text-slate-600 font-bold';
           }
         }
       });
 
-      // Update Patient Details Strip
+      // Update Patient Details Strip (Expanded Card)
       document.getElementById('pName').innerText = patient.name;
       document.getElementById('pId').innerText = patient.tz;
       document.getElementById('pAgeGender').innerText = `${patient.gender}, ${patient.age} (${patient.birthDate})`;
@@ -1900,6 +1971,21 @@
       document.getElementById('pDilemmaText').innerText = patient.clinicalDilemma || 'מעבדה AI בודקת התאמת הפניות';
       document.getElementById('ramonAlertText').innerText = patient.ramonPreventive;
       document.getElementById('bnCountBadge').innerText = `${patient.tests.length} הפניות`;
+
+      // Update Mini Patient Bar (Collapsed Card)
+      const miniName = document.getElementById('miniName');
+      const miniId = document.getElementById('miniId');
+      const miniClinic = document.getElementById('miniClinic');
+      const miniScenarioBadge = document.getElementById('miniScenarioBadge');
+      const miniDilemma = document.getElementById('miniDilemma');
+      const miniAvatar = document.getElementById('miniAvatar');
+
+      if (miniName) miniName.innerText = patient.name;
+      if (miniId) miniId.innerText = patient.tz;
+      if (miniClinic) miniClinic.innerText = `סניף: ${patient.clinic}`;
+      if (miniScenarioBadge) miniScenarioBadge.innerText = patient.scenarioTitle;
+      if (miniDilemma) miniDilemma.innerText = patient.clinicalDilemma ? `האתגר: ${patient.clinicalDilemma}` : '';
+      if (miniAvatar) miniAvatar.innerText = patient.name.split(' ').map(n=>n[0]).join('');
 
       // Handle GCT 50g Timer Banner visibility
       const gctBanner = document.getElementById('gctTimerBanner');
@@ -2993,6 +3079,88 @@
         if (drawerBtn) drawerBtn.classList.add('bg-sky-50', 'border-sky-300', 'text-maccabi-blue');
       }
 
+      // Update top badge if view controls row is collapsed
+      const currentBadge = document.getElementById('currentViewBadge');
+      if (currentBadge) {
+        currentBadge.innerText = mode === 'all' ? '3 חלונות' : mode === 'split' ? 'בוסה נובה + AI' : 'סייען בלבד';
+      }
+
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------
+    // COLLAPSIBLE ROWS: VIEW CONTROLS & PATIENT HERO STRIP
+    // -------------------------------------------------------------
+    let viewControlsRowCollapsed = false;
+    let patientStripCollapsed = false;
+
+    function toggleViewControlsRow(force) {
+      if (typeof force === 'boolean') {
+        viewControlsRowCollapsed = force;
+      } else {
+        viewControlsRowCollapsed = !viewControlsRowCollapsed;
+      }
+
+      const row = document.getElementById('viewControlsRow');
+      const chevron = document.getElementById('viewControlsChevron');
+      const label = document.getElementById('viewControlsToggleLabel');
+      const btn = document.getElementById('toggleViewControlsBtn');
+
+      if (viewControlsRowCollapsed) {
+        if (row) row.classList.add('hidden');
+        if (chevron) chevron.setAttribute('data-lucide', 'chevron-down');
+        if (label) label.innerText = 'פתח תצוגה';
+        if (btn) {
+          btn.classList.remove('bg-sky-50/90');
+          btn.classList.add('bg-white');
+        }
+      } else {
+        if (row) row.classList.remove('hidden');
+        if (chevron) chevron.setAttribute('data-lucide', 'chevron-up');
+        if (label) label.innerText = 'תצוגה ובקרות';
+        if (btn) {
+          btn.classList.remove('bg-white');
+          btn.classList.add('bg-sky-50/90');
+        }
+      }
+
+      try {
+        localStorage.setItem('maccabi_viewControls_collapsed', viewControlsRowCollapsed ? 'true' : 'false');
+      } catch (e) {}
+
+      playMedicalSound('pop');
+      lucide.createIcons();
+    }
+
+    function togglePatientStrip(force) {
+      if (typeof force === 'boolean') {
+        patientStripCollapsed = force;
+      } else {
+        patientStripCollapsed = !patientStripCollapsed;
+      }
+
+      const body = document.getElementById('patientStripBody');
+      const mini = document.getElementById('patientStripMini');
+
+      if (patientStripCollapsed) {
+        if (body) body.classList.add('hidden');
+        if (mini) {
+          mini.classList.remove('hidden');
+          mini.classList.add('flex');
+        }
+      } else {
+        if (body) body.classList.remove('hidden');
+        if (mini) {
+          mini.classList.add('hidden');
+          mini.classList.remove('flex');
+        }
+      }
+
+      try {
+        localStorage.setItem('maccabi_patientStrip_collapsed', patientStripCollapsed ? 'true' : 'false');
+      } catch (e) {}
+
+      playMedicalSound('pop');
       lucide.createIcons();
     }
 
