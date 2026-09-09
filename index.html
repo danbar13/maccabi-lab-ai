@@ -1081,7 +1081,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h3 class="font-black text-base sm:text-lg">מדריך תפעול: מערכת מעבדה AI</h3>
-              <span class="text-[10px] bg-white/20 text-white font-extrabold px-2 py-0.5 rounded-full border border-white/30" id="tourStepBadge">שלב 1 מתוך 5</span>
+              <span class="text-[10px] bg-white/20 text-white font-extrabold px-2 py-0.5 rounded-full border border-white/30" id="tourStepBadge">שלב 1 מתוך 6</span>
             </div>
             <p class="text-xs text-sky-100 mt-0.5">סיור היכרות מהיר עם יכולות הסייען הקדם-אנליטי של מכבי שירותי בריאות</p>
           </div>
@@ -1101,7 +1101,7 @@
 
       <!-- Tour Progress Bar -->
       <div class="w-full bg-slate-100 h-1.5 overflow-hidden">
-        <div id="tourProgressBar" class="h-full bg-gradient-to-r from-sky-400 to-maccabi-primary transition-all duration-300" style="width: 20%;"></div>
+        <div id="tourProgressBar" class="h-full bg-gradient-to-r from-sky-400 to-maccabi-primary transition-all duration-300" style="width: 16.66%;"></div>
       </div>
 
       <!-- Step Navigation Pills -->
@@ -1126,6 +1126,10 @@
           <button onclick="goToTourStep(4)" class="tour-step-pill px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-4">
             <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-black">5</span>
             <span>אלפון AI</span>
+          </button>
+          <button onclick="goToTourStep(5)" class="tour-step-pill px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-5">
+            <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-black">6</span>
+            <span>בק-אופיס נהלים</span>
           </button>
         </div>
 
@@ -1204,16 +1208,30 @@
             </div>
           </div>
 
-          <!-- Highlight: Alfon AI Permanent Button -->
-          <div class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 flex items-start gap-3 text-xs text-amber-950">
-            <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 font-bold">
-              <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <!-- Highlight: Alfon AI & Back-Office Permanent Buttons -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 flex items-start gap-3 text-amber-950 shadow-2xs">
+              <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 font-bold">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="font-extrabold text-sm">כפתור "שאל את אלפון AI" זמין תמיד משמאל</div>
+                <p class="text-slate-700 mt-0.5 leading-relaxed">
+                  גם כשכל השורות מקופלות לפינוי מקום, כפתור האלפון נשאר גלוי תמיד בראש המסך למענה מיידי על נהלי שאיבה.
+                </p>
+              </div>
             </div>
-            <div>
-              <div class="font-extrabold text-sm">כפתור "שאל את אלפון AI" זמין תמיד בראש המסך משמאל!</div>
-              <p class="text-slate-700 mt-0.5">
-                גם כאשר כל השורות מקופלות לפינוי מקום, כפתור האלפון נשאר גלוי תמיד בסרגל העליון וזמין בלחיצה אחת לקבלת מענה על נהלי שאיבה ומעבדה.
-              </p>
+
+            <div class="p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-200 flex items-start gap-3 text-indigo-950 shadow-2xs">
+              <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 font-bold">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="font-extrabold text-sm">כפתור "בק-אופיס נהלים ⚙️"</div>
+                <p class="text-slate-700 mt-0.5 leading-relaxed">
+                  בסרגל העליון מימין זמין פורטל ניהול הנהלים, המוגן בכניסה מורשית (<span class="font-mono font-bold bg-indigo-100 px-1 py-0.5 rounded text-indigo-900">admin</span> / <span class="font-mono font-bold bg-indigo-100 px-1 py-0.5 rounded text-indigo-900">admin</span>) להגדרת חוקים וקטלוגים.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1417,6 +1435,79 @@
           <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-[11px] text-emerald-900 font-bold flex items-center gap-2">
             <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
             <span>מענה מוסמך ומיידי המסייע לשמור על איכות הדגימות ולמנוע פסילות במעבדה המרכזית!</span>
+          </div>
+        </div>
+
+        <!-- SLIDE 5: פורטל ניהול נהלים (בק-אופיס) -->
+        <div id="tourSlide-5" class="tour-slide space-y-4 hidden">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div>
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">שלב 6 • שליטה ומשילות ארגונית</span>
+              <h2 class="text-lg font-black text-indigo-950">פורטל ניהול נהלים (בק-אופיס): שליטה מלאה למחלקת איכות</h2>
+            </div>
+            <span class="text-2xl">⚙️</span>
+          </div>
+
+          <p class="text-xs text-slate-600 leading-relaxed">
+            פורטל ניהול הנהלים מעניק למנהלות המעבדה ומובילות האיכות שליטה ישירה וארצית, ללא תלות באנשי פיתוח או מחשוב:
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <!-- Card 1: חוקי תשאול -->
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 shadow-2xs">
+              <div class="flex items-center gap-2 font-black text-indigo-950">
+                <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">1</span>
+                <span>מנוע חוקי תשאול קליניים</span>
+              </div>
+              <p class="text-slate-600 text-[11px] leading-relaxed">
+                הגדרה ועריכה של שאלות בירור (צום, עישון, תרופות) והפעולות הנגזרות מיידית (ביטול/השהיית בדיקות, הנחיות אזהרה לדוגם).
+              </p>
+            </div>
+
+            <!-- Card 2: קטלוג בדיקות -->
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 shadow-2xs">
+              <div class="flex items-center gap-2 font-black text-indigo-950">
+                <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">2</span>
+                <span>קטלוג בדיקות ותנאי שינוע</span>
+              </div>
+              <p class="text-slate-600 text-[11px] leading-relaxed">
+                הוספה והורדה של בדיקות מעבדה, עדכון סוג מבחנה, זמני יציבות, סרכוז וטמפרטורת שינוע (בקרח / בטמפ' חדר).
+              </p>
+            </div>
+
+            <!-- Card 3: טיימרים והתרעות -->
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 shadow-2xs">
+              <div class="flex items-center gap-2 font-black text-indigo-950">
+                <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">3</span>
+                <span>הגדרת טיימרים והתרעות</span>
+              </div>
+              <p class="text-slate-600 text-[11px] leading-relaxed">
+                שליטה בזמני מדידה לפרוטוקולים מתוזמנים (GCT העמסת סוכר, רמות תרופה בשיא ושפל) וצלילי התרעה לעמדה.
+              </p>
+            </div>
+
+            <!-- Card 4: סנכרון רשתי -->
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 shadow-2xs">
+              <div class="flex items-center gap-2 font-black text-indigo-950">
+                <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">4</span>
+                <span>סנכרון מיידי ל-420 מרפאות</span>
+              </div>
+              <p class="text-slate-600 text-[11px] leading-relaxed">
+                כל עדכון נוהל נשמר ומופץ מיידית בענן לכל עמדות המעבדה של מכבי שירותי בריאות ברחבי הארץ בסנכרון מלא.
+              </p>
+            </div>
+          </div>
+
+          <!-- Login Gate Info Bar -->
+          <div class="p-3 bg-indigo-50/90 rounded-2xl border border-indigo-200/80 text-[11px] text-indigo-950 flex items-center justify-between gap-3 shadow-2xs">
+            <div class="flex items-center gap-2 font-bold">
+              <i data-lucide="shield-check" class="w-4 h-4 text-indigo-600 flex-shrink-0"></i>
+              <span>כניסה מורשית בלבד עם שם משתמש וסיסמה:</span>
+              <span class="font-mono bg-white px-2 py-0.5 rounded-md border border-indigo-200 text-indigo-900 font-extrabold">admin</span>
+              <span>/</span>
+              <span class="font-mono bg-white px-2 py-0.5 rounded-md border border-indigo-200 text-indigo-900 font-extrabold">admin</span>
+            </div>
+            <span class="text-indigo-600 font-extrabold hidden sm:inline">אבטחה ומעקב שינויים ✓</span>
           </div>
         </div>
 
@@ -2756,17 +2847,18 @@
     // ONBOARDING TOUR & WALKTHROUGH LOGIC (WITH HEBREW VOICE NARRATION)
     // -------------------------------------------------------------
     let currentTourStep = 0;
-    const TOTAL_TOUR_STEPS = 5;
+    const TOTAL_TOUR_STEPS = 6;
     let tourAutoPlayInterval = null;
     let tourVoiceMuted = false;
     let currentTourUtterance = null;
 
     const TOUR_NARRATIONS = [
-      "ברוכים הבאים למעבדה AI. בסרגל העליון תוכלו לעבור בין חמישה מקרי מבחן קליניים. שימו לב לחיצי הקיפול הקטנים – לחיצה עליהם תסגור את השורות ותפנה לכם מקסימום שטח מסך בעמדה. כפתור שאל את אלפון AI נשאר זמין תמיד משמאל.",
+      "ברוכים הבאים למעבדה AI. בסרגל העליון תוכלו לעבור בין חמישה מקרי מבחן קליניים, לגשת לפורטל הבק-אופיס לניהול נהלים, וללחוץ על חיצי הקיפול כדי לפנות מקסימום שטח מסך בעמדה. כפתור שאל את אלפון AI נשאר זמין תמיד משמאל.",
       "המערכת פועלת בשלוש שכבות תמיכה: התמצאות – קריאת כל ההפניות מבוסה נובה ובדיקות מונעות; תשומת לב – זיהוי התנגשויות קליניות כמו צום ועישון; ופעולה – הנחיות עבודה ברורות מה לבצע היום ומה לדחות.",
       "בכל מטופל, שאלות הבירור מתאימות את תוכנית הבדיקות בזמן אמת. לדוגמה, עישון הבוקר יבטל מיידית את תבחין הנשיפה. בנוסף, לרשותכם טיימר מובנה של שישים דקות להעמסת סוכר עם התרעה קולית בתום השעה.",
       "סדר שאיבת המבחנות מותאם לתקן הבינלאומי למניעת זיהום צולב. במעמד המבחנות השולחני תוכלו ללחוץ על כל מבחנה לסימון ביצוע, ולבסוף להדפיס סיכום הנחיות מסודר למטופל.",
-      "אלפון AI מבוסס על כל נהלי מעבדת מכבי. בלחיצה אחת תוכלו לבחור שאלות מהירות או להקליד כל שאלה, ולקבל מענה מיידי על זמני יציבות, סרכוז וטמפרטורת שינוע."
+      "אלפון AI מבוסס על כל נהלי מעבדת מכבי. בלחיצה אחת תוכלו לבחור שאלות מהירות או להקליד כל שאלה, ולקבל מענה מיידי על זמני יציבות, סרכוז וטמפרטורת שינוע.",
+      "למנהלות המעבדה ומובילות האיכות עומד פורטל בק-אופיס ארגוני, המוגן בכניסה מורשית עם שם משתמש וסיסמה אדמין. בפורטל זה ניתן לעדכן חוקי תשאול, קטלוג בדיקות, תנאי שינוע וטיימרים, ולהפיץ את העדכונים בזמן אמת לכל ארבע מאות ועשרים עמדות מכבי בארץ."
     ];
 
     function openOnboardingTour(stepIndex = 0) {
