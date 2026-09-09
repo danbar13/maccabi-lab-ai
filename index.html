@@ -335,34 +335,61 @@
         </div>
       </div>
 
-      <!-- Patient Switcher (5 Test Cases) -->
-      <div class="flex items-center gap-1.5 bg-slate-100/90 p-1 rounded-2xl border border-slate-200/80 shadow-2xs">
-        <span class="text-xs font-extrabold text-maccabi-navy px-2 flex items-center gap-1">
-          <i data-lucide="users" class="w-3.5 h-3.5 text-maccabi-primary"></i>
-          <span>החלף מטופל:</span>
+      <!-- Active Patient Quick Indicator in Top Bar -->
+      <div id="miniCurrentPatientBadge" onclick="togglePatientSwitcherRow()" class="flex items-center gap-1.5 bg-slate-100/90 hover:bg-sky-100/80 p-1 px-3 rounded-2xl border border-slate-200/80 hover:border-sky-300 shadow-2xs cursor-pointer transition" title="לחץ לפתיחת / סגירת שורת בחירת מטופלים">
+        <span class="text-xs font-extrabold text-maccabi-navy flex items-center gap-1">
+          <i data-lucide="user-check" class="w-3.5 h-3.5 text-maccabi-primary"></i>
+          <span>מטופל:</span>
         </span>
-        <div class="flex items-center gap-1" id="patientSelectorContainer">
-          <!-- Populated by JS -->
-        </div>
+        <span id="miniCurrentPatientName" class="text-xs font-black text-maccabi-blue bg-white px-2 py-0.5 rounded-lg border border-sky-200 shadow-2xs">
+          1. דני לוי
+        </span>
+        <i data-lucide="chevron-down" id="miniPatientChevron" class="w-3.5 h-3.5 text-slate-400"></i>
       </div>
 
-      <!-- Left: Permanent Alfon AI Button & Collapsible Toggle Button -->
+      <!-- Left Controls: Toggle Switcher, Toggle View, and Always-Visible Alfon AI on Far Left -->
       <div class="flex items-center gap-2">
-        <!-- Always Visible: Alfon AI Button -->
-        <button onclick="openAlfonChatModal()" class="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-gradient-to-r from-maccabi-navy to-maccabi-blue hover:from-maccabi-dark hover:to-maccabi-navy text-white shadow-xs hover:shadow-md transition cursor-pointer" title="שאל את אלפון AI - סייען קדם אנליטי חכם">
-          <i data-lucide="sparkles" class="w-4 h-4 text-sky-300"></i>
-          <span>שאל את אלפון AI</span>
+        <!-- Toggle Button for Patient Switcher Row -->
+        <button onclick="togglePatientSwitcherRow()" id="togglePatientSwitcherBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50/90 hover:bg-sky-100 text-maccabi-blue text-xs font-bold transition shadow-2xs cursor-pointer" title="כווץ / הרחב שורת בחירת מטופלים">
+          <i data-lucide="users" class="w-3.5 h-3.5 text-maccabi-primary"></i>
+          <span class="text-[11px] font-bold text-slate-700" id="patientSwitcherToggleLabel">החלף מטופל</span>
+          <i data-lucide="chevron-up" id="patientSwitcherChevron" class="w-4 h-4 text-maccabi-blue transition-transform duration-200"></i>
         </button>
 
-        <!-- Collapsible Toggle Button for View Controls Row -->
-        <button onclick="toggleViewControlsRow()" id="toggleViewControlsBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-300 bg-sky-50/90 hover:bg-sky-100 text-maccabi-blue text-xs font-bold transition shadow-2xs cursor-pointer" title="כווץ / הרחב שורת בחירת תצוגה ובקרות">
+        <!-- Toggle Button for View Controls Row -->
+        <button onclick="toggleViewControlsRow()" id="toggleViewControlsBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50/90 hover:bg-sky-100 text-maccabi-blue text-xs font-bold transition shadow-2xs cursor-pointer" title="כווץ / הרחב שורת בחירת תצוגה ובקרות">
           <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-maccabi-primary"></i>
-          <span class="text-[11px] font-bold text-slate-700" id="viewControlsToggleLabel">תצוגה ובקרות</span>
+          <span class="text-[11px] font-bold text-slate-700" id="viewControlsToggleLabel">תצוגה</span>
           <span id="currentViewBadge" class="text-[10px] bg-white border border-sky-300 text-maccabi-navy px-1.5 py-0.2 rounded font-black shadow-2xs">3 חלונות</span>
           <i data-lucide="chevron-up" id="viewControlsChevron" class="w-4 h-4 text-maccabi-blue transition-transform duration-200"></i>
         </button>
+
+        <!-- Far Left: Always Visible Alfon AI Button -->
+        <button onclick="openAlfonChatModal()" id="alfonTopBtn" class="flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-maccabi-navy to-maccabi-blue hover:from-maccabi-dark hover:to-maccabi-navy text-white shadow-xs hover:shadow-md transition cursor-pointer flex-shrink-0" title="שאל את אלפון AI - סייען קדם אנליטי חכם (גלוי תמיד)">
+          <i data-lucide="sparkles" class="w-4 h-4 text-sky-300"></i>
+          <span>שאל את אלפון AI</span>
+        </button>
       </div>
 
+    </div>
+
+    <!-- Row A: שורת בחירת המטופל (Collapsible) -->
+    <div id="patientSwitcherRow" class="border-t border-sky-100 bg-slate-50/95 px-4 py-1.5 transition-all duration-300">
+      <div class="max-w-[1780px] mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-extrabold text-maccabi-navy flex items-center gap-1 pl-1">
+            <i data-lucide="users" class="w-3.5 h-3.5 text-maccabi-primary"></i>
+            <span>החלף מטופל (5 מקרי מבחן קליניים):</span>
+          </span>
+          <div class="flex items-center gap-1.5 flex-wrap" id="patientSelectorContainer">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+        <button onclick="togglePatientSwitcherRow()" class="flex items-center gap-1 text-[11px] font-bold text-slate-500 hover:text-slate-800 px-2 py-1 rounded-lg hover:bg-slate-200/80 transition cursor-pointer" title="סגור שורת בחירת מטופל">
+          <span>סגור שורת מטופל</span>
+          <i data-lucide="chevron-up" class="w-3.5 h-3.5 text-slate-500"></i>
+        </button>
+      </div>
     </div>
 
     <!-- Row 2: שורת בחירת התצוגה והבקרות (Collapsible) -->
@@ -1905,6 +1932,9 @@
 
       // Restore saved collapse states from localStorage if previously toggled
       try {
+        if (localStorage.getItem('maccabi_patientSwitcher_collapsed') === 'true') {
+          togglePatientSwitcherRow(true);
+        }
         if (localStorage.getItem('maccabi_viewControls_collapsed') === 'true') {
           toggleViewControlsRow(true);
         }
@@ -1962,6 +1992,12 @@
           }
         }
       });
+
+      // Update Active Patient Quick Indicator in Top Bar
+      const miniCurrent = document.getElementById('miniCurrentPatientName');
+      if (miniCurrent) {
+        miniCurrent.innerText = `${idx + 1}. ${patient.name.split(' ')[0]}`;
+      }
 
       // Update Patient Details Strip (Expanded Card)
       document.getElementById('pName').innerText = patient.name;
@@ -3092,10 +3128,52 @@
     }
 
     // -------------------------------------------------------------
-    // COLLAPSIBLE ROWS: VIEW CONTROLS & PATIENT HERO STRIP
+    // COLLAPSIBLE ROWS: PATIENT SWITCHER, VIEW CONTROLS & HERO STRIP
     // -------------------------------------------------------------
+    let patientSwitcherRowCollapsed = false;
     let viewControlsRowCollapsed = false;
     let patientStripCollapsed = false;
+
+    function togglePatientSwitcherRow(force) {
+      if (typeof force === 'boolean') {
+        patientSwitcherRowCollapsed = force;
+      } else {
+        patientSwitcherRowCollapsed = !patientSwitcherRowCollapsed;
+      }
+
+      const row = document.getElementById('patientSwitcherRow');
+      const chevron = document.getElementById('patientSwitcherChevron');
+      const miniChevron = document.getElementById('miniPatientChevron');
+      const label = document.getElementById('patientSwitcherToggleLabel');
+      const btn = document.getElementById('togglePatientSwitcherBtn');
+
+      if (patientSwitcherRowCollapsed) {
+        if (row) row.classList.add('hidden');
+        if (chevron) chevron.setAttribute('data-lucide', 'chevron-down');
+        if (miniChevron) miniChevron.setAttribute('data-lucide', 'chevron-down');
+        if (label) label.innerText = 'מטופלים';
+        if (btn) {
+          btn.classList.remove('bg-sky-50/90');
+          btn.classList.add('bg-white');
+        }
+      } else {
+        if (row) row.classList.remove('hidden');
+        if (chevron) chevron.setAttribute('data-lucide', 'chevron-up');
+        if (miniChevron) miniChevron.setAttribute('data-lucide', 'chevron-up');
+        if (label) label.innerText = 'החלף מטופל';
+        if (btn) {
+          btn.classList.remove('bg-white');
+          btn.classList.add('bg-sky-50/90');
+        }
+      }
+
+      try {
+        localStorage.setItem('maccabi_patientSwitcher_collapsed', patientSwitcherRowCollapsed ? 'true' : 'false');
+      } catch (e) {}
+
+      playMedicalSound('pop');
+      lucide.createIcons();
+    }
 
     function toggleViewControlsRow(force) {
       if (typeof force === 'boolean') {
