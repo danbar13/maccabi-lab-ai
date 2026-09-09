@@ -269,6 +269,11 @@
     .modal-pop-in {
       animation: modalPopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
+    .tour-step-pill {
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      line-height: 1.25;
+    }
     .tour-step-pill.active {
       background: linear-gradient(135deg, #003C71 0%, #0075C9 100%);
       color: #ffffff;
@@ -1072,69 +1077,69 @@
   <div id="onboardingTourModal" class="fixed inset-0 bg-slate-900/65 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full flex flex-col max-h-[92vh] overflow-hidden border border-sky-300/80 modal-pop-in relative">
       
-      <!-- Tour Header -->
-      <div class="p-4 sm:p-5 bg-gradient-to-r from-maccabi-navy via-maccabi-blue to-maccabi-primary text-white flex items-center justify-between shadow-xs">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center text-white text-xl shadow-inner">
+      <!-- Tour Header (flex-shrink-0 to prevent vertical overlap) -->
+      <div class="p-3 sm:p-4 bg-gradient-to-r from-maccabi-navy via-maccabi-blue to-maccabi-primary text-white flex items-center justify-between shadow-xs flex-shrink-0">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center text-white text-xl shadow-inner flex-shrink-0">
             🎓
           </div>
-          <div>
+          <div class="min-w-0">
             <div class="flex items-center gap-2">
-              <h3 class="font-black text-base sm:text-lg">מדריך תפעול: מערכת מעבדה AI</h3>
-              <span class="text-[10px] bg-white/20 text-white font-extrabold px-2 py-0.5 rounded-full border border-white/30" id="tourStepBadge">שלב 1 מתוך 6</span>
+              <h3 class="font-black text-sm sm:text-lg truncate">מדריך תפעול: מערכת מעבדה AI</h3>
+              <span class="text-[10px] bg-white/20 text-white font-extrabold px-2 py-0.5 rounded-full border border-white/30 flex-shrink-0" id="tourStepBadge">שלב 1 מתוך 6</span>
             </div>
-            <p class="text-xs text-sky-100 mt-0.5">סיור היכרות מהיר עם יכולות הסייען הקדם-אנליטי של מכבי שירותי בריאות</p>
+            <p class="text-xs text-sky-100 mt-0.5 hidden sm:block truncate">סיור היכרות מהיר עם יכולות הסייען הקדם-אנליטי של מכבי שירותי בריאות</p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-shrink-0">
           <!-- Voice Narration Toggle Button (השתק / הפעל הסבר קולי) -->
-          <button onclick="toggleTourVoice()" id="tourVoiceToggleBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/30 transition shadow-2xs cursor-pointer" title="הפעל או השתק הסבר קולי לסיור">
+          <button onclick="toggleTourVoice()" id="tourVoiceToggleBtn" class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/30 transition shadow-2xs cursor-pointer flex-shrink-0" title="הפעל או השתק הסבר קולי לסיור">
             <i data-lucide="volume-2" id="tourVoiceIcon" class="w-4 h-4 text-sky-200"></i>
             <span id="tourVoiceText" class="hidden sm:inline">קריינות פעילה</span>
           </button>
 
-          <button onclick="closeOnboardingTour()" class="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition cursor-pointer" title="סגור סיור">
+          <button onclick="closeOnboardingTour()" class="text-white/80 hover:text-white p-1.5 sm:p-2 rounded-xl hover:bg-white/10 transition cursor-pointer flex-shrink-0" title="סגור סיור">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
       </div>
 
       <!-- Tour Progress Bar -->
-      <div class="w-full bg-slate-100 h-1.5 overflow-hidden">
+      <div class="w-full bg-slate-100 h-1.5 overflow-hidden flex-shrink-0">
         <div id="tourProgressBar" class="h-full bg-gradient-to-r from-sky-400 to-maccabi-primary transition-all duration-300" style="width: 16.66%;"></div>
       </div>
 
-      <!-- Step Navigation Pills -->
-      <div class="bg-slate-50/90 border-b border-slate-200 px-4 py-2 flex items-center justify-between gap-1 overflow-x-auto custom-scrollbar text-xs">
-        <div class="flex items-center gap-1.5 sm:gap-2">
-          <button onclick="goToTourStep(0)" class="tour-step-pill active px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-0">
+      <!-- Step Navigation Pills (flex-shrink-0 and solid background) -->
+      <div class="bg-slate-100/95 border-b border-slate-200 px-3 sm:px-4 py-2 flex items-center justify-between gap-2 overflow-x-auto custom-scrollbar text-xs flex-shrink-0">
+        <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          <button onclick="goToTourStep(0)" class="tour-step-pill active px-3 py-1.5 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" id="tourPill-0">
             <span class="w-4 h-4 rounded-full bg-white/30 text-[10px] flex items-center justify-center font-black">1</span>
             <span>סרגל שליטה ומטופלים</span>
           </button>
-          <button onclick="goToTourStep(1)" class="tour-step-pill px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-1">
+          <button onclick="goToTourStep(1)" class="tour-step-pill px-3 py-1.5 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" id="tourPill-1">
             <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-black">2</span>
             <span>3 שכבות תמיכה</span>
           </button>
-          <button onclick="goToTourStep(2)" class="tour-step-pill px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-2">
+          <button onclick="goToTourStep(2)" class="tour-step-pill px-3 py-1.5 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" id="tourPill-2">
             <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-black">3</span>
             <span>אימות וטיימר GCT</span>
           </button>
-          <button onclick="goToTourStep(3)" class="tour-step-pill px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-3">
+          <button onclick="goToTourStep(3)" class="tour-step-pill px-3 py-1.5 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" id="tourPill-3">
             <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-black">4</span>
             <span>סדר מבחנות ומעמד</span>
           </button>
-          <button onclick="goToTourStep(4)" class="tour-step-pill px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-4">
+          <button onclick="goToTourStep(4)" class="tour-step-pill px-3 py-1.5 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" id="tourPill-4">
             <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-black">5</span>
             <span>אלפון AI</span>
           </button>
-          <button onclick="goToTourStep(5)" class="tour-step-pill px-3 py-1 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5" id="tourPill-5">
+          <button onclick="goToTourStep(5)" class="tour-step-pill px-3 py-1.5 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-sky-50 transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" id="tourPill-5">
             <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-black">6</span>
             <span>בק-אופיס נהלים</span>
           </button>
         </div>
 
         <!-- Auto Play Toggle in Top Pill Bar -->
-        <button onclick="toggleTourAutoPlay()" id="tourAutoPlayBtn" class="flex items-center gap-1 px-2.5 py-1 rounded-xl border border-sky-300 bg-white text-maccabi-blue text-[11px] font-bold hover:bg-sky-50 transition shadow-2xs cursor-pointer flex-shrink-0" title="הפעל או עצור מעבר אוטומטי בין שלבים">
+        <button onclick="toggleTourAutoPlay()" id="tourAutoPlayBtn" class="flex items-center gap-1 px-2.5 py-1 rounded-xl border border-sky-300 bg-white text-maccabi-blue text-[11px] font-bold hover:bg-sky-50 transition shadow-2xs cursor-pointer flex-shrink-0 whitespace-nowrap" title="הפעל או עצור מעבר אוטומטי בין שלבים">
           <i data-lucide="play" id="tourAutoPlayIcon" class="w-3.5 h-3.5 text-maccabi-primary"></i>
           <span id="tourAutoPlayText">ניגון אוטומטי</span>
         </button>
@@ -1514,7 +1519,7 @@
       </div>
 
       <!-- Tour Voice Narration Subtitles Banner (כתוביות הסבר קולי) -->
-      <div id="tourVoiceSubtitleBar" class="mx-4 sm:mx-6 mb-2 p-2.5 rounded-2xl bg-gradient-to-r from-sky-50 via-white to-blue-50 border border-sky-200 text-xs text-slate-800 flex items-start gap-2.5 shadow-xs transition-all">
+      <div id="tourVoiceSubtitleBar" class="mx-4 sm:mx-6 mb-2 p-2.5 rounded-2xl bg-gradient-to-r from-sky-50 via-white to-blue-50 border border-sky-200 text-xs text-slate-800 flex items-start gap-2.5 shadow-xs transition-all flex-shrink-0">
         <div class="w-6 h-6 rounded-lg bg-maccabi-primary text-white flex items-center justify-center flex-shrink-0 text-xs font-bold shadow-2xs mt-0.5">
           <i data-lucide="volume-2" id="tourSubVoiceIcon" class="w-3.5 h-3.5 text-white"></i>
         </div>
@@ -1535,7 +1540,7 @@
       </div>
 
       <!-- Tour Footer & Controls -->
-      <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div class="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs flex-shrink-0">
         <!-- Right / Start: Checkbox "Don't show again" -->
         <label class="flex items-center gap-2 cursor-pointer select-none text-slate-700 hover:text-slate-900">
           <input type="checkbox" id="dontShowTourAgainCheckbox" onchange="handleDontShowTourAgain(this.checked)" class="w-4 h-4 rounded text-maccabi-primary focus:ring-sky-400 border-slate-300">
@@ -3058,7 +3063,7 @@
         // Update Step Pills
         const pill = document.getElementById(`tourPill-${i}`);
         if (pill) {
-          pill.className = `tour-step-pill px-3 py-1 rounded-xl font-bold border transition cursor-pointer flex items-center gap-1.5 ${
+          pill.className = `tour-step-pill px-3 py-1.5 rounded-xl font-bold border transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 ${
             i === currentTourStep 
               ? 'active' 
               : i < currentTourStep 
